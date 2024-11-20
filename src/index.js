@@ -1,28 +1,48 @@
 import React from 'react';
-  import ReactDOM from 'react-dom/client';
-  import './index.css';
-  import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
-  import Root from './routes/Root';
-  import Login from './routes/Login';
-  import Home from './routes/Home';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import Root from './routes/Root';
+import Login from './routes/Login';
+import Home from './routes/Home';
+import StripeProvider from './stripeProvider';
+import SettingsPage from './routes/Settings';
+import ManageAccountPage from './routes/ManageAccount';
+import ManagePaymentMethodsPage from './routes/ManagePaymentMethods';
+import DisplayPage from './routes/DisplayPage';
+import PracticeData from './routes/PracticeData';
+import { NotificationProvider } from './context/NotificationContext';
+import { AuthProvider } from './context/AuthContext';
+import DemoAuthPage from './routes/DemoAuthPage';
 
+const router = createBrowserRouter([
+    { path: '', element: <Root />,
+        children: [
+            {
+                index: true, // This makes it the default route for the parent path
+                element: <Navigate to="/home" replace />, // Redirect to /home
+            },
+            { path: 'login', element: <Login />, },
+            { path: 'home', element: <Home />, },
+            { path: 'settings', element: <SettingsPage />, },
+            { path: 'manageaccount', element: <ManageAccountPage />, },
+            { path: 'managebilling', element: <ManagePaymentMethodsPage />, },
+            { path: 'displaypage', element: <DisplayPage />, },
+            { path: 'stackedlistpage', element: <PracticeData />, },
+            { path: 'search', element: <DemoAuthPage />, },
+        ],
+    },
+]);
 
-  const router = createBrowserRouter([
-      { path: '', element: <Root />,
-          children: [
-              {
-                  index: true, // This makes it the default route for the parent path
-                  element: <Navigate to="/home" replace />, // Redirect to /home
-              },
-              { path: 'login', element: <Login />, },
-              { path: 'home', element: <Home />, },
-          ],
-      },
-  ]);
-
-  const root = ReactDOM.createRoot(document.getElementById('root'));
-  root.render(
-      <React.StrictMode>
-          <RouterProvider router={router} />
-      </React.StrictMode>
-  );
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+    <React.StrictMode>
+        <AuthProvider>
+        <StripeProvider>
+            <NotificationProvider>
+            <RouterProvider router={router} />
+            </NotificationProvider>
+        </StripeProvider>
+        </AuthProvider>
+    </React.StrictMode>
+);
