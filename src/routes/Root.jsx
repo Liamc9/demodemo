@@ -1,36 +1,59 @@
+// src/routes/Root.js
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import {
-  TopWSideNav,
-  TopNavBar2,
-  BottomNav,
-  HomeIcon,
+  HomeIcon3,
   SearchIcon2,
-  UserIcon2,
+  UserIcon3,
   CogIcon,
   LoginIcon,
-} from "liamc9npm";
+  BookOpenIcon,
+  ChatIcon,
+} from "../components/icons/Icons";
 import { useNotifications } from "../context/NotificationContext";
 import { getAuth, signOut } from "firebase/auth"; // Import Firebase auth functions
+import { useAuth } from "../context/AuthContext"; // Import AuthContext for currentUser
+import TopWSideNav from "../components/navigation/TopWSideNav";
+import TopNavBar2 from "../components/navigation/TopNavBar2";
+import BottomNav from "../components/navigation/BottomNav";
 
 export default function Root() {
   const location = useLocation();
   const navigate = useNavigate();
   const { notifications } = useNotifications();
+  const { currentUser } = useAuth(); // Access currentUser from AuthContext
 
   // Scroll to top whenever the location.pathname changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
+  // Helper function to check if a path matches the current route, including dynamic paths
+  const matchesPath = (pathPattern) => {
+    const regex = new RegExp(`^${pathPattern.replace(":id", "[^/]+")}$`);
+    return regex.test(location.pathname);
+  };
+
   // Paths where TopNavBar should be hidden
-  const topNavHiddenPaths = ["/login"];
+  const topNavHiddenPaths = [
+    "/login",
+    "/explore",
+    "/listing",
+    "/messages",
+    "/settings/:id",
+    "/settings/manageaccount",
+    "/rooms/:id",
+    "/profile/:id",
+    "/conversation/:id",
+  ];
 
   // Paths where BottomNavBar should be hidden
-  const bottomNavHiddenPaths = ["/login"];
+  const bottomNavHiddenPaths = ["/login", "/rooms/:id", "/conversation/:id"];
 
-  const shouldHideTopNav = () => topNavHiddenPaths.includes(location.pathname);
-  const shouldHideBottomNav = () => bottomNavHiddenPaths.includes(location.pathname);
+  const shouldHideTopNav = () =>
+    topNavHiddenPaths.some((path) => matchesPath(path));
+  const shouldHideBottomNav = () =>
+    bottomNavHiddenPaths.some((path) => matchesPath(path));
 
   // Firebase Logout Function
   const handleLogout = async () => {
@@ -44,16 +67,21 @@ export default function Root() {
     }
   };
 
-  // Dynamic bottom navigation items based on notification context
+  // Dynamic bottom navigation items based on notification context and currentUser
   const bottomNavItems = [
-    { text: "Home", icon: HomeIcon, path: "/home", hasNotification: notifications.home },
-    { text: "Search", icon: SearchIcon2, path: "/search", hasNotification: notifications.search },
-    { text: "Profile", icon: UserIcon2, path: "/profile", hasNotification: notifications.profile },
-    { text: "Settings", icon: CogIcon, path: "/settings", hasNotification: notifications.settings },
+    { text: "Explore", icon: SearchIcon2, path: "/explore", hasNotification: notifications.explore },
+    { text: "Listing", icon: HomeIcon3, path: "/listing", hasNotification: notifications.listing },
+    { text: "Messages", icon: ChatIcon, path: "/messages", hasNotification: notifications.messages },
+    { 
+      text: "Account", 
+      icon: UserIcon3, 
+      path: currentUser ? `/settings/${currentUser.uid}` : "/login", // Dynamic user ID path or login fallback
+      hasNotification: notifications.account,
+    },
   ];
 
   return (
-    <div className="min-h-screen w-full overflow-y-auto overflow-x-hidden bg-white">
+    <div id="root" className="w-full overflow-x-hidden bg-white">
       {/* Top Navigation Bar */}
       {!shouldHideTopNav() && (
         <>
@@ -63,12 +91,12 @@ export default function Root() {
               appName="MyApp"
               signInColor="#000000"
               navLinks={[
-                { name: "Home", path: "/home", Icon: HomeIcon },
+                { name: "Home", path: "/home", Icon: HomeIcon3 },
                 { name: "Web Development", path: "/webdev", Icon: CogIcon },
                 { name: "Analytics", path: "/analytics", Icon: LoginIcon },
               ]}
-              username="Jane Smith"
-              profilePic="https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg"
+              username={currentUser?.displayName || "Guest"}
+              profilePic={currentUser?.photoURL || "https://via.placeholder.com/50"}
               onLogout={handleLogout} // Pass the Firebase logout function
             />
           </div>
@@ -85,9 +113,10 @@ export default function Root() {
           <BottomNav items={bottomNavItems} />
         </div>
       )}
-      <div className="mb-16">
-      {/* Main Content */}
-      <Outlet />
+
+      {/* Main Content with Conditional Margin */}
+      <div className={!shouldHideBottomNav() ? "pb-16" : ""}>
+        <Outlet />
       </div>
     </div>
   );

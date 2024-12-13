@@ -1,8 +1,8 @@
 // Login.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext'; // Adjust the path according to your file structure
-import { AuthPageView } from 'liamc9npm'; // Assuming this is the UI component you're using
-import { useNavigate } from 'react-router-dom';
+import AuthPageView from '../components/authentication/AuthPageView'; // Assuming this is the UI component you're using
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Login = () => {
   const [showSignUp, setShowSignUp] = useState(false);
@@ -17,6 +17,9 @@ const Login = () => {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const { login, signup, resetPassword, loginWithGoogle, loginWithApple, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from || "/"; // Default to home if no redirect route
 
   // Handle user login
   const handleLogin = async (e) => {
@@ -29,7 +32,7 @@ const Login = () => {
       const user = userCredential.user;
 
       if (user.emailVerified) {
-        navigate('/home'); // Replace with your desired route
+        navigate(from); // Redirect to the original page
       } else {
         await logout();
         setError('Your email is not verified. Please verify your email.');
@@ -91,21 +94,13 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     try {
       await loginWithGoogle();
-      navigate('/home'); // Replace with your desired route
+      navigate('/explore'); // Replace with your desired route
     } catch (error) {
       setError('Failed to sign in with Google. Please try again.');
     }
   };
 
-  // Handle Apple sign-in
-  const handleAppleSignIn = async () => {
-    try {
-      await loginWithApple();
-      navigate('/home'); // Replace with your desired route
-    } catch (error) {
-      setError('Failed to sign in with Apple. Please try again.');
-    }
-  };
+  
 
   return (
     <div className='p-4'>
@@ -120,6 +115,7 @@ const Login = () => {
       setReenterPassword={setReenterPassword}
       error={error}
       isSignupComplete={isSignupComplete}
+      setIsSignupComplete={setIsSignupComplete}
       isLoading={isLoading}
       termsAccepted={termsAccepted}
       setTermsAccepted={setTermsAccepted}
@@ -130,8 +126,7 @@ const Login = () => {
       onForgotPassword={handleForgotPassword}
       resetEmailSent={resetEmailSent}
       onGoogleSignIn={handleGoogleSignIn}
-      onAppleSignIn={handleAppleSignIn}
-      themeColor="#B08B5B"
+      themeColor="#A855F7"
     />
     </div>
   );
