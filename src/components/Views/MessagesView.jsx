@@ -7,7 +7,7 @@ export default function MessagesView({ currentUser, conversations, loading, erro
   return (
     <div>
       {!currentUser ? (
-        <MessagesPrompt />
+        <MessagesPrompt currentUser/>
       ) : (
         <div>
           {loading ? (
@@ -17,7 +17,7 @@ export default function MessagesView({ currentUser, conversations, loading, erro
           ) : conversations.length === 0 ? (
             <p>No conversations found.</p>
           ) : (
-            <ConversationList conversations={conversations} />
+            <ConversationList conversations={conversations} currentUser={currentUser}/>
           )}
         </div>
       )}

@@ -2,8 +2,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import StackedList from '../molecules/stackedlist/StackedList';
-import { ChevronRightIcon } from "liamc9npm"; // Ensure ChevronRightIcon is imported
 import { Link } from "react-router-dom"; // Import Link for profile navigation
+import { ChevronRightIcon } from '../icons/Icons';
+import { useNavigate } from "react-router-dom";
 
 // Styled Components
 const SettingsContainer = styled.div`
@@ -108,17 +109,17 @@ const FooterLinks = styled.div`
     }
   }
 `;
-
-// Profile Link Container (Moved inside Settings component)
-const ProfileLinkContainer = styled(Link)`
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: inherit;
+const LoadingMessage = styled.div`
+  padding: 16px;
+  font-size: 1.25rem; /* Increased font size */
+  color: #666;
+  text-align: center;
 `;
 
-const Settings = ({ settings, onLogout, userData }) => {
+const SettingsView = ({ settings, logout, currentUser, userData }) => {
   // Group settings by category
+  const navigate = useNavigate();
+
   const categories = settings.reduce((acc, setting) => {
     if (!acc[setting.category]) {
       acc[setting.category] = [];
@@ -126,6 +127,27 @@ const Settings = ({ settings, onLogout, userData }) => {
     acc[setting.category].push(setting);
     return acc;
   }, {});
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login"); // Redirect to login page after logout
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  // Handle loading and authentication state
+  if (currentUser === null) {
+    // User is not authenticated
+    navigate("/login");
+    return null;
+  }
+
+  if (!userData) {
+    return <LoadingMessage>Loading user data...</LoadingMessage>;
+  }
 
   return (
     <SettingsContainer>
@@ -149,7 +171,7 @@ const Settings = ({ settings, onLogout, userData }) => {
       ))}
 
       {/* Logout Button */}
-      <LogoutButton onClick={onLogout}>Log Out</LogoutButton>
+      <LogoutButton onClick={handleLogout}>Log Out</LogoutButton>
 
       {/* Footer */}
       <Footer>
@@ -164,4 +186,4 @@ const Settings = ({ settings, onLogout, userData }) => {
   );
 };
 
-export default Settings;
+export default SettingsView;

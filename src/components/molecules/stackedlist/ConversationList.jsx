@@ -8,11 +8,11 @@ const ListWrapper = styled.div`
 `;
 
 
-const ConversationList = ({ conversations }) => {
+const ConversationList = ({ conversations, currentUser }) => {
   return (
     <ListWrapper>
       {conversations.map((conversation) => (
-        <ConversationItem key={conversation.id} conversation={conversation} />
+        <ConversationItem key={conversation.id} conversation={conversation} currentUser={currentUser}/>
       ))}
     </ListWrapper>
   );

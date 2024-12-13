@@ -2,7 +2,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import { useAuth } from '../../context/AuthContext'; // Import useAuth
 import { LettzIcon } from '../icons/Icons'; // Adjust the path as necessary
 
 // Styled Components
@@ -105,8 +104,7 @@ const Button = styled.button`
   }
 `;
 
-const ListYourPlace = ({ onButtonClick }) => {
-  const { currentUser } = useAuth(); // Access the authentication status
+const ListYourPlaceCard = ({ onButtonClick, currentUser }) => {
   const navigate = useNavigate(); // Initialize navigation
 
   const handleClick = () => {
@@ -135,4 +133,4 @@ const ListYourPlace = ({ onButtonClick }) => {
   );
 };
 
-export default ListYourPlace;
+export default ListYourPlaceCard;	

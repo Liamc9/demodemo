@@ -4,9 +4,11 @@ import React, { useRef } from "react";
 import styled from "styled-components";
 import Input from "../Input";
 import { ChevronLeftIcon } from "liamc9npm";
-import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DeleteAccountModal from "../DeleteAccountModal";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 // Styled Components (same as in original Profile.js)
 const ProfileContainer = styled.div`
@@ -133,20 +135,76 @@ const ProfileView = ({
   firstName,
   setFirstName,
   profilePic,
-  triggerFileInput,
-  handleProfilePicSelect,
   fileInputRef,
   handleSaveChanges,
   isSaving,
-  handleNavigateBack,
-  handleDeleteAccount,
   showDeleteModal,
-  cancelDeleteAccount,
   confirmDeleteAccount,
+  setShowDeleteModal,
+  currentUser,
+  setProfilePic,
+  userData,
+  setNewProfilePicFile,
+  newProfilePicFile,
 }) => {
+
+    const handleProfilePicSelect = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const validTypes = ["image/jpeg", "image/png", "image/gif"];
+        if (!validTypes.includes(file.type)) {
+          toast.error("Only JPEG, PNG, and GIF files are allowed.");
+          return;
+        }
+  
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+          toast.error("File size exceeds 5MB.");
+          return;
+        }
+  
+        setNewProfilePicFile(file);
+        const previewURL = URL.createObjectURL(file);
+        setProfilePic(previewURL);
+      }
+    };
+
+      useEffect(() => {
+    return () => {
+      if (newProfilePicFile) {
+        URL.revokeObjectURL(profilePic);
+      }
+    };
+  }, [newProfilePicFile, profilePic]);
+
+const navigate = useNavigate();
+  const handleDeleteAccount = () => {
+    setShowDeleteModal(true);
+  };
+
+  const cancelDeleteAccount = () => {
+    setShowDeleteModal(false);
+  };
+
+  const handleNavigateBack = () => {
+    navigate(`/settings/${currentUser?.uid}`);
+  };
+
+    const triggerFileInput = () => {
+      if (fileInputRef.current) {
+        fileInputRef.current.click();
+      }
+    };
+
+    useEffect(() => {
+      if (userData) {
+        setFirstName(userData.displayName || "");
+        setProfilePic(userData.photoURL || "https://via.placeholder.com/120");
+      }
+    }, [userData]);
+
   return (
     <ProfileContainer>
-      <ToastContainer />
       <Header>
         <IconButton onClick={handleNavigateBack} aria-label="Go back to settings">
           <ChevronLeftIcon />

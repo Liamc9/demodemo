@@ -1,12 +1,14 @@
 // src/components/RoomsView.jsx
 
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import ImageCarousel2 from "../ImageCarousel2";
 import { CalendarIcon, LocationIcon } from "../icons/Icons";
 import MapWithMarker from "../Map";
 import BottomDrawer from "../Drawers/BottomDrawer";
 import MessageForm from "../MessageForm";
+import { useNavigate } from "react-router-dom"; 
+import PropTypes from "prop-types";
 
 // Styled Components (Moved from Rooms.jsx)
 const RoomContainer = styled.div`
@@ -15,6 +17,10 @@ const RoomContainer = styled.div`
   max-width: 800px;
   margin: 0 auto;
   padding-bottom: 100px; /* Space for the fixed bottom bar */
+`;
+const ImageContainer = styled.div`
+  aspect-ratio: 5 / 4;
+  overflow: hidden;
 `;
 
 const RoomTitle = styled.h1`
@@ -56,7 +62,7 @@ const DatesContainer = styled.div`
       flex: 0 0 40%; /* Each section takes 40% of the container */
       display: flex;
       flex-direction: column;
-      align-items: left;
+      align-items: flex-start; /* Changed from 'left' to 'flex-start' */
       margin-left: 2rem;
 
       .date-label {
@@ -152,6 +158,11 @@ const SendMessageButton = styled.button`
   &:hover {
     background-color: #0056b3;
   }
+
+  &:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
 `;
 
 const ErrorContainer = styled.div`
@@ -166,25 +177,44 @@ const ErrorContainer = styled.div`
 // Display Component
 const RoomsView = ({
   roomData,
-  isDrawerOpen,
-  handleSendMessage,
   handleSend,
-  closeDrawer,
+  currentUser,
+  id,
 }) => {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const navigate = useNavigate();
+
   if (!roomData) {
     return <ErrorContainer>Room not found.</ErrorContainer>;
   }
+
+  const handleSendMessage = () => {
+    if (!currentUser) {
+      // Redirect to login if the user is not logged in
+      navigate("/login", { state: { from: `/rooms/${id}` } });
+      return;
+    }
+
+    // Open the message form drawer
+    setIsDrawerOpen(true);
+  };
+
+  const closeDrawer = () => {
+    setIsDrawerOpen(false);
+  };
 
   const images = roomData.images && Array.isArray(roomData.images) ? roomData.images : [];
 
   return (
     <>
       <RoomContainer>
-        {images?.length > 0 ? (
-          <ImageCarousel2 images={images} />
-        ) : (
-          <p>No images available</p>
-        )}
+        <ImageContainer>
+          {images.length > 0 ? (
+            <ImageCarousel2 images={images} />
+          ) : (
+            <p>No images available</p>
+          )}
+        </ImageContainer>
         <RoomTitle>{roomData.title || "Room Title"}</RoomTitle>
         <DatesContainer>
           <div className="icon-container">
@@ -207,9 +237,7 @@ const RoomsView = ({
           <LocationContainer>
             <LocationIcon className="w-6 h-6" />
             <AddressText>
-              {roomData.streetAddress ? roomData.streetAddress : "No address provided"},{" "}
-              {roomData.city ? roomData.city : "City"}, {roomData.county ? roomData.county : "County"}
-              , {roomData.eircode ? roomData.eircode : "eirCode"}
+              {roomData.streetAddress ? roomData.streetAddress : "No address provided"}, {roomData.city ? roomData.city : "City"}, {roomData.county ? roomData.county : "County"}, {roomData.eircode ? roomData.eircode : "eirCode"}
             </AddressText>
           </LocationContainer>
           <MapWithMarker eircode={roomData.eircode} />
@@ -223,9 +251,11 @@ const RoomsView = ({
       <FixedBottomBar>
         <RentContainer>
           <RentLabel>Monthly Rent</RentLabel>
-          <RentText>€{roomData.rent || "N/A"}</RentText>
+          <RentText>€{roomData.rent !== undefined ? roomData.rent : "N/A"}</RentText>
         </RentContainer>
-        <SendMessageButton onClick={handleSendMessage}>Send Message</SendMessageButton>
+        <SendMessageButton onClick={handleSendMessage} disabled={roomData.userId === currentUser?.uid}>
+          Send Message
+        </SendMessageButton>
       </FixedBottomBar>
       <BottomDrawer
         isOpen={isDrawerOpen}
@@ -239,5 +269,6 @@ const RoomsView = ({
     </>
   );
 };
+
 
 export default RoomsView;

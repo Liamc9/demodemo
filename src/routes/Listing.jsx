@@ -102,6 +102,7 @@ const Listing = () => {
           ...formData,
           images: combinedImages,
           userId: currentUser.uid,
+          photoURL: userData.photoURL,
           title,
         });
         if (currentUser) {
@@ -181,6 +182,8 @@ const Listing = () => {
       listingIds={listingIds}
       setEditingListing={setEditingListing}
       handleManageToggle={handleManageToggle} // Passed prop
+      currentUser={currentUser} // Passed prop
+      userData={userData} // Passed prop
     />
   );
 };

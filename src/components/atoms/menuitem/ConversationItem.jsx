@@ -3,7 +3,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext'; // To get currentUser
 
 // Styled Components
 const ItemWrapper = styled(Link)`
@@ -89,9 +88,7 @@ const formatTimestamp = (timestamp) => {
 };
 
 // Component
-const ConversationItem = ({ conversation }) => {
-  console.log(conversation);
-  const { currentUser } = useAuth();
+const ConversationItem = ({ conversation, currentUser }) => {
 
   // Find the other participant
   const otherParticipant = conversation.participants.find(p => p.uid !== currentUser.uid);

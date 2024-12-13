@@ -1,7 +1,7 @@
 // src/components/Rooms.jsx
 
 import React, { useState, useEffect } from "react";
-import { useParams, Navigate, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { doc, serverTimestamp, arrayUnion, writeBatch, getDoc, collection } from "firebase/firestore";
 import { db } from "../firebase-config";
 import { useAuth } from "../context/AuthContext";
@@ -11,44 +11,44 @@ import RoomsView from "../components/Views/RoomsView";
 const Rooms = () => {
   const { id } = useParams(); // Extract the `id` from the URL parameters
   const { currentUser } = useAuth(); // Access the current user from AuthContext
-  const navigate = useNavigate(); // Initialize navigation
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // State to control the drawer
   const [roomData, setRoomData] = useState(null);
 
-    const [roomSnapshot, roomLoading, roomError] = useDocument(
-        doc(db, "listings", id),
-    );
-    useEffect(() => {
-        if (roomSnapshot) {
-          setRoomData({
-            id: roomSnapshot.id, // Include the document ID
-            ...roomSnapshot.data(), // Spread the document data
-          });        }
-    }, [roomSnapshot]);
-
-  const handleSendMessage = () => {
-    if (!currentUser) {
-      // Redirect to login if the user is not logged in
-      navigate("/login", { state: { from: `/rooms/${id}` } });
-      return;
+  const [roomSnapshot, roomLoading, roomError] = useDocument(
+    doc(db, "listings", id),
+  );
+console.log(roomData)
+  useEffect(() => {
+    if (roomSnapshot) {
+      const data = {
+        id: roomSnapshot.id, // Include the document ID
+        ...roomSnapshot.data(), // Spread the document data
+      };
+      console.log("Fetched room data:", data); // Debugging
+      setRoomData(data);
     }
-
-    // Open the message form drawer
-    setIsDrawerOpen(true);
-  };
-
-  const closeDrawer = () => {
-    setIsDrawerOpen(false);
-  };
+  }, [roomSnapshot]);
 
   const handleSend = async (message) => {
     try {
+      // Validation Checks
       if (!roomData) {
         throw new Error("Room data is not available.");
       }
 
+      if (!currentUser) {
+        throw new Error("User is not authenticated.");
+      }
+
+      if (!message || typeof message !== 'string') {
+        throw new Error("Invalid message content.");
+      }
+
       const senderUID = currentUser.uid;
       const receiverUID = roomData.userId; // Ensure 'userId' is correct in roomData
+
+      if (!receiverUID) {
+        throw new Error("Receiver UID is not defined.");
+      }
 
       // Fetch receiver's user data
       const receiverDocRef = doc(db, "users", receiverUID);
@@ -121,8 +121,7 @@ const Rooms = () => {
       // Commit the batch
       await batch.commit();
 
-      // Close the drawer
-      closeDrawer();
+      console.log("Message sent successfully.");
 
     } catch (error) {
       console.error("Error sending message:", error);
@@ -131,13 +130,21 @@ const Rooms = () => {
     }
   };
 
+  // Handle Loading and Error States
+  if (roomLoading) {
+    return <div>Loading room data...</div>;
+  }
+
+  if (roomError) {
+    return <div>Error loading room data: {roomError.message}</div>;
+  }
+
   return (
     <RoomsView
       roomData={roomData}
-      isDrawerOpen={isDrawerOpen}
-      handleSendMessage={handleSendMessage}
       handleSend={handleSend}
-      closeDrawer={closeDrawer}
+      currentUser={currentUser}
+      id={id}
     />
   );
 };

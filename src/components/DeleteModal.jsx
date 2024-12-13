@@ -226,13 +226,4 @@ const DeleteAccountModal = ({
   );
 };
 
-DeleteAccountModal.propTypes = {
-  onCancel: PropTypes.func.isRequired,
-  onConfirm: PropTypes.func.isRequired,
-  title: PropTypes.string,
-  message: PropTypes.string,
-  animate: PropTypes.bool,
-  requiresPassword: PropTypes.bool,
-};
-
 export default DeleteAccountModal;

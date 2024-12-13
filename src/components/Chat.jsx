@@ -153,13 +153,6 @@ const Chat = ({ conversation, handleSendMessage, newMessage, setNewMessage, mess
     }
   }, [conversation, conversation?.messages]);
 
-  
-  // Handle pressing Enter key to send message
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSendMessage();
-    }
-  };
 
   // If conversation is not yet loaded, show loading message
   if (!conversation) {
@@ -208,7 +201,6 @@ const Chat = ({ conversation, handleSendMessage, newMessage, setNewMessage, mess
           placeholder="Type a message..."
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
         />
         <SendButton onClick={handleSendMessage} disabled={!newMessage.trim()}>
           Send

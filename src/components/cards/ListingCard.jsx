@@ -1,6 +1,6 @@
 // src/components/cards/ListingCard.jsx
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
@@ -47,6 +47,19 @@ const CardContent = styled.div`
   height: 100%;
 `;
 
+// New Styled Component for Image Wrapper
+const ImageWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  aspect-ratio: 5 / 4; /* Set desired aspect ratio here */
+  overflow: hidden;
+
+  /* Ensure that ImageCarousel2 fills the wrapper */
+  .swiper-wrapper {
+    height: 100%;
+  }
+`;
+
 const RentBadge = styled.div`
   position: absolute;
   top: 10px;
@@ -61,7 +74,6 @@ const RentBadge = styled.div`
   display: flex;
   align-items: center;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-
 `;
 
 const DateRangeBadge = styled.div`
@@ -78,7 +90,6 @@ const DateRangeBadge = styled.div`
   display: flex;
   align-items: center;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-
 `;
 
 const TextContainer = styled.div`
@@ -90,21 +101,18 @@ const TextContainer = styled.div`
 `;
 
 const ProfilePicture = styled.div`
-  flex: 0 0 60px;
+  flex: 0 0 80px;
   display: flex;
   justify-content: center;
   align-items: center;
   margin-right: 1rem;
   transition: transform 0.3s ease;
 
-  &:hover {
-    transform: scale(1.05);
-  }
 `;
 
 const ProfileImage = styled.img`
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #ddd;
@@ -118,7 +126,7 @@ const InfoContainer = styled.div`
 `;
 
 const TitleText = styled.div`
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #333;
   margin-bottom: 0.2rem;
@@ -127,7 +135,7 @@ const TitleText = styled.div`
 const LocationText = styled.div`
   display: flex;
   align-items: center;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   color: #666;
   gap: 0.1rem; /* Space between icon and text */
 `;
@@ -136,6 +144,7 @@ const LocationIconStyled = styled(LocationIcon)`
   width: 25px;
   height: 25px;
 `;
+
 // Overlay Styles
 
 const ManagingOverlay = styled.div`
@@ -227,38 +236,8 @@ const ListingCard = ({ data, isManaging, onUpdate, onRemove }) => {
     rent,
     startDate,
     endDate,
-    userId, // Added userId
+    photoURL,
   } = data;
-
-  const [photoURL, setphotoURL] = useState(null);
-
-  const firestore = getFirestore();
-
-  useEffect(() => {
-    const fetchUserPhoto = async () => {
-      if (!userId) {
-        setphotoURL(null);
-        return;
-      }
-
-      try {
-        const userDocRef = doc(firestore, "users", userId);
-        const userDoc = await getDoc(userDocRef);
-
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          setphotoURL(userData.photoURL || null);
-        } else {
-          setphotoURL(null);
-        }
-      } catch (error) {
-        console.error("Error fetching user photo:", error);
-        setphotoURL(null);
-      }
-    };
-
-    fetchUserPhoto();
-  }, [userId, firestore]);
 
   const dateRange =
     startDate && endDate ? `${startDate} - ${endDate}` : "Available Anytime";
@@ -271,7 +250,7 @@ const ListingCard = ({ data, isManaging, onUpdate, onRemove }) => {
   // Card Content
   const content = (
     <CardContent>
-      <div style={{ position: "relative" }}>
+      <ImageWrapper>
         <ImageCarousel2 images={imageList} />
         {rent !== undefined && (
           <RentBadge>
@@ -284,7 +263,7 @@ const ListingCard = ({ data, isManaging, onUpdate, onRemove }) => {
             {dateRange}
           </DateRangeBadge>
         )}
-      </div>
+      </ImageWrapper>
       <TextContainer>
         <ProfilePicture>
           <ProfileImage src={profileImage} alt="Profile" />
@@ -327,29 +306,27 @@ const ListingCard = ({ data, isManaging, onUpdate, onRemove }) => {
   );
 };
 
-// PropTypes Validation
-
-ListingCard.propTypes = {
-  data: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    images: PropTypes.arrayOf(PropTypes.string),
-    city: PropTypes.string.isRequired,
-    county: PropTypes.string.isRequired,
-    title: PropTypes.string, // Updated to include 'title'
-    rent: PropTypes.number,
-    startDate: PropTypes.string,
-    endDate: PropTypes.string,
-    userId: PropTypes.string.isRequired, // Added 'userId'
-  }).isRequired,
-  isManaging: PropTypes.bool,
-  onUpdate: PropTypes.func,
-  onRemove: PropTypes.func,
-};
-
 ListingCard.defaultProps = {
   isManaging: false,
   onUpdate: () => {},
   onRemove: () => {},
+};
+
+ListingCard.propTypes = {
+  data: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    images: PropTypes.arrayOf(PropTypes.string),
+    city: PropTypes.string.isRequired,
+    county: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    rent: PropTypes.number,
+    startDate: PropTypes.string,
+    endDate: PropTypes.string,
+    photoURL: PropTypes.string,
+  }).isRequired,
+  isManaging: PropTypes.bool,
+  onUpdate: PropTypes.func,
+  onRemove: PropTypes.func,
 };
 
 export default ListingCard;

@@ -134,7 +134,9 @@ const ListingView = ({
     error,
     listingIds,
     setEditingListing,
-    handleManageToggle, // Added prop
+    handleManageToggle, 
+    currentUser,
+    userData,
   }) => {
   
     if (loading) {
@@ -162,7 +164,7 @@ const ListingView = ({
         )}
   
         {userListings.length === 0 ? (
-          <ListYourPlaceCard onButtonClick={handleListYourPlaceClick} />
+          <ListYourPlaceCard onButtonClick={handleListYourPlaceClick} currentUser={currentUser}/>
         ) : (
           <>
             <ListingsContainer>

@@ -4,10 +4,11 @@ import React, { useState, useEffect, useRef } from "react";
 import ProfileView from "../components/Views/ProfileView";
 import { useAuth } from "../context/AuthContext";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getFirestore, doc, updateDoc, getDoc, writeBatch } from "firebase/firestore";
-import { getAuth, deleteUser, GoogleAuthProvider, reauthenticateWithPopup } from "firebase/auth";
+import { doc, updateDoc, getDoc, writeBatch } from "firebase/firestore";
+import { deleteUser, GoogleAuthProvider, reauthenticateWithPopup } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { db } from "../firebase-config";
 
 const Profile = () => {
   const { currentUser, userData, updateUserData, logout } = useAuth();
@@ -17,46 +18,9 @@ const Profile = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const storage = getStorage();
-  const firestore = getFirestore();
-  const auth = getAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    if (userData) {
-      setFirstName(userData.displayName || "");
-      setProfilePic(userData.photoURL || "https://via.placeholder.com/120");
-    }
-  }, [userData]);
-
-  const handleProfilePicSelect = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const validTypes = ["image/jpeg", "image/png", "image/gif"];
-      if (!validTypes.includes(file.type)) {
-        toast.error("Only JPEG, PNG, and GIF files are allowed.");
-        return;
-      }
-
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      if (file.size > maxSize) {
-        toast.error("File size exceeds 5MB.");
-        return;
-      }
-
-      setNewProfilePicFile(file);
-      const previewURL = URL.createObjectURL(file);
-      setProfilePic(previewURL);
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (newProfilePicFile) {
-        URL.revokeObjectURL(profilePic);
-      }
-    };
-  }, [newProfilePicFile, profilePic]);
 
   const handleSaveChanges = async () => {
     if (!firstName.trim()) {
@@ -75,7 +39,7 @@ const Profile = () => {
         downloadURL = await getDownloadURL(storageRef);
       }
 
-      const docRef = doc(firestore, "users", currentUser.uid);
+      const docRef = doc(db, "users", currentUser.uid);
 
       // Determine if profile is complete
       // For example: If firstName is not empty and profilePic is not a placeholder, consider it complete
@@ -104,18 +68,15 @@ const Profile = () => {
     }
   };
 
-  const handleDeleteAccount = () => {
-    setShowDeleteModal(true);
-  };
+
 
   const confirmDeleteAccount = async () => {
     try {
-      const user = auth.currentUser;
-      if (!user) {
+      if (!currentUser) {
         throw new Error("No authenticated user found.");
       }
 
-      const providerData = user.providerData;
+      const providerData = currentUser.providerData;
       if (providerData.length === 0) {
         throw new Error("No provider data available.");
       }
@@ -124,12 +85,12 @@ const Profile = () => {
 
       if (providerId === "google.com") {
         const provider = new GoogleAuthProvider();
-        await reauthenticateWithPopup(user, provider);
+        await reauthenticateWithPopup(currentUser, provider);
       } else {
         throw new Error(`Unsupported provider: ${providerId}`);
       }
 
-      const userDocRef = doc(firestore, "users", currentUser.uid);
+      const userDocRef = doc(db, "users", currentUser.uid);
       const userDocSnap = await getDoc(userDocRef);
 
       if (!userDocSnap.exists()) {
@@ -139,17 +100,17 @@ const Profile = () => {
       const userDocData = userDocSnap.data();
       const listings = userDocData.listings || [];
 
-      const batch = writeBatch(firestore);
+      const batch = writeBatch(indexedDB);
 
       listings.forEach((listingId) => {
-        const listingDocRef = doc(firestore, "listings", listingId);
+        const listingDocRef = doc(db, "listings", listingId);
         batch.delete(listingDocRef);
       });
 
       batch.delete(userDocRef);
       await batch.commit();
 
-      await deleteUser(user);
+      await deleteUser(currentUser);
 
       await logout();
       toast.success("Account and associated listings deleted successfully.");
@@ -171,35 +132,22 @@ const Profile = () => {
     }
   };
 
-  const cancelDeleteAccount = () => {
-    setShowDeleteModal(false);
-  };
-
-  const handleNavigateBack = () => {
-    navigate(`/settings/${currentUser?.uid}`);
-  };
-
-  const triggerFileInput = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
   return (
     <ProfileView
       firstName={firstName}
       setFirstName={setFirstName}
       profilePic={profilePic}
-      triggerFileInput={triggerFileInput}
-      handleProfilePicSelect={handleProfilePicSelect}
       fileInputRef={fileInputRef}
       handleSaveChanges={handleSaveChanges}
       isSaving={isSaving}
-      handleNavigateBack={handleNavigateBack}
-      handleDeleteAccount={handleDeleteAccount}
       showDeleteModal={showDeleteModal}
-      cancelDeleteAccount={cancelDeleteAccount}
       confirmDeleteAccount={confirmDeleteAccount}
+      setShowDeleteModal={setShowDeleteModal}
+      currentUser={currentUser}
+      setProfilePic={setProfilePic}
+      userData={userData}
+      setNewProfilePicFile={setNewProfilePicFile}
+      newProfilePicFile={newProfilePicFile}
     />
   );
 };

@@ -283,7 +283,7 @@ const SearchPageDrawer = ({ searchResults = [] }) => {
       ) : sortedResults.length > 0 ? (
         <ResultsWrapper>
           {sortedResults.map((result) => (
-            <ListingCard key={result.id} data={result} />
+            <ListingCard key={result.id} data={result}/>
           ))}
         </ResultsWrapper>
       ) : (
