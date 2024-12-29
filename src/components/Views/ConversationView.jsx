@@ -4,6 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Chat from '../Chat';
 import ChatListingCard from '../ChatListingCard';
+import { ChevronLeftIcon } from '../icons/Icons'; // Import the ChevronLeftIcon
 
 // Styled Components
 const ConversationContainer = styled.div`
@@ -14,6 +15,26 @@ const ConversationContainer = styled.div`
   padding-top: 160px; /* Space for the fixed ChatListingCard */
   box-sizing: border-box;
   background-color: #f9fafb; /* Light background for better contrast */
+  position: relative; /* Make it a positioned parent for the absolute BackButton */
+`;
+
+const BackButton = styled.button`
+  position: absolute;
+  top: 20px; /* Adjust as needed */
+  left: 20px; /* Adjust as needed */
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e0e0e0;
+  padding: 5px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 50; /* Ensure it's above the conversation content */
+  }
 `;
 
 const ErrorMessage = styled.div`
@@ -27,24 +48,33 @@ const LoadingMessage = styled.div`
 `;
 
 // Display Component
-const conversationView = ({
+const ConversationView = ({
   conversation,
   listing,
   loadingConversation,
   loadingListing,
   errorConversation,
   errorListing,
-    handleSendMessage,
-    newMessage,
-    setNewMessage,
-    messagesEndRef
+  handleSendMessage,
+  newMessage,
+  setNewMessage,
+  messagesEndRef
 }) => {
+  const handleBackClick = () => {
+    window.history.back();
+  };
+
   return (
     <>
       {/* Display ChatListingCard only if listing data is available and not loading */}
       {!loadingListing && listing && <ChatListingCard data={listing} />}
 
       <ConversationContainer>
+        {/* Back Button */}
+        <BackButton onClick={handleBackClick} aria-label="Go Back">
+          <ChevronLeftIcon />
+        </BackButton>
+
         {/* Loading or Error States for Conversation */}
         {loadingConversation ? (
           <LoadingMessage>Loading conversation...</LoadingMessage>
@@ -58,8 +88,13 @@ const conversationView = ({
             ) : errorListing ? (
               <ErrorMessage>Error loading listing: {errorListing.message}</ErrorMessage>
             ) : (
-              <Chat conversation={conversation} handleSendMessage={handleSendMessage}
-              newMessage={newMessage} setNewMessage={setNewMessage} messagesEndRef={messagesEndRef}/>
+              <Chat
+                conversation={conversation}
+                handleSendMessage={handleSendMessage}
+                newMessage={newMessage}
+                setNewMessage={setNewMessage}
+                messagesEndRef={messagesEndRef}
+              />
             )}
           </>
         )}
@@ -68,4 +103,4 @@ const conversationView = ({
   );
 };
 
-export default conversationView;
+export default ConversationView;

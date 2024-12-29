@@ -22,12 +22,12 @@ const TextArea = styled.textarea`
   outline: none;
 
   &:focus {
-    border-color: #007bff;
+    border-color: #000000;
   }
 `;
 
 const SendButton = styled.button`
-  background-color: #28a745;
+  background-color: #000000;
   color: #fff;
   font-size: 1rem;
   font-weight: bold;
@@ -37,9 +37,6 @@ const SendButton = styled.button`
   cursor: pointer;
   align-self: flex-end;
 
-  &:hover {
-    background-color: #218838;
-  }
 
   &:disabled {
     background-color: #6c757d;

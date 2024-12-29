@@ -242,7 +242,12 @@ const PageOne = ({ formData, handleChange }) => (
       label="Eircode"
       color="#A855F7"
       value={formData.eircode}
-      onChange={(e) => handleChange("eircode", e.target.value)}
+      onChange={(e) =>
+        handleChange(
+          "eircode",
+          e.target.value.toUpperCase().replace(/\s/g, "").slice(0, 7)
+        )
+      }
       required
     />
 

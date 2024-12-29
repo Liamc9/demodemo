@@ -3,11 +3,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import ImageCarousel2 from "../ImageCarousel2";
-import { CalendarIcon, LocationIcon } from "../icons/Icons";
+import { CalendarIcon, LocationIcon, ChevronLeftIcon } from "../icons/Icons"; // Import ChevronLeftIcon
 import MapWithMarker from "../Map";
 import BottomDrawer from "../Drawers/BottomDrawer";
 import MessageForm from "../MessageForm";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
 // Styled Components (Moved from Rooms.jsx)
@@ -17,7 +17,29 @@ const RoomContainer = styled.div`
   max-width: 800px;
   margin: 0 auto;
   padding-bottom: 100px; /* Space for the fixed bottom bar */
+  position: relative; /* Make it a positioned parent for the absolute BackButton */
 `;
+
+
+const BackButton = styled.button`
+  position: absolute;
+  top: 20px; /* Adjust as needed */
+  left: 20px; /* Adjust as needed */
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e0e0e0;
+  padding: 5px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 50; /* Ensure it's above the conversation content */
+  }
+`;
+
 const ImageContainer = styled.div`
   aspect-ratio: 5 / 4;
   overflow: hidden;
@@ -28,6 +50,7 @@ const RoomTitle = styled.h1`
   color: #333;
   font-weight: bold;
   margin-left: 1rem;
+  margin-top: 10px; /* Space for the BackButton */
 `;
 
 const DatesContainer = styled.div`
@@ -123,7 +146,7 @@ const FixedBottomBar = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 1rem;
+  padding: 1rem;
   z-index: 20;
 `;
 
@@ -134,30 +157,27 @@ const RentContainer = styled.div`
 `;
 
 const RentLabel = styled.div`
-  font-size: 0.8rem;
+  font-size: 1rem;
   font-weight: 400;
   color: #999;
 `;
 
 const RentText = styled.div`
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: bold;
   color: #333;
 `;
 
 const SendMessageButton = styled.button`
-  background-color: #007bff;
+  background-color: #A855F7;
   color: #fff;
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: bold;
-  padding: 0.5rem 1.5rem;
+  padding: 0.8rem 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
 
-  &:hover {
-    background-color: #0056b3;
-  }
 
   &:disabled {
     background-color: #aaa;
@@ -203,11 +223,22 @@ const RoomsView = ({
     setIsDrawerOpen(false);
   };
 
+  const handleBackClick = () => {
+    window.history.back();
+    // Alternatively, use navigate(-1) if you prefer:
+    // navigate(-1);
+  };
+
   const images = roomData.images && Array.isArray(roomData.images) ? roomData.images : [];
 
   return (
     <>
       <RoomContainer>
+        {/* Back Button */}
+        <BackButton onClick={handleBackClick} aria-label="Go Back">
+          <ChevronLeftIcon />
+        </BackButton>
+
         <ImageContainer>
           {images.length > 0 ? (
             <ImageCarousel2 images={images} />
@@ -270,5 +301,11 @@ const RoomsView = ({
   );
 };
 
+RoomsView.propTypes = {
+  roomData: PropTypes.object.isRequired,
+  handleSend: PropTypes.func.isRequired,
+  currentUser: PropTypes.object,
+  id: PropTypes.string.isRequired,
+};
 
 export default RoomsView;

@@ -10,50 +10,68 @@ import Modal from "../Modal";
 import Loader from "../Loader";
 import { PlusIcon } from "../icons/Icons";
 
-
-const BodyContainer = styled.div`
-  position: relative;
-  padding: 20px 0;
-  max-width: 1200px;
-  margin: 0 auto;
-`;
-
-
-const HeaderSection = styled.div`
-  margin-bottom: 20px;
-`;
-
-const ManageSection = styled.div`
+// New Styled Component for Fixed Header
+const FixedHeader = styled.header`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px; /* Adjust height as needed */
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 1000; /* Ensure it stays above other elements */
+`;
+
+const HeaderTitle = styled.h1`
+  font-size: 2rem;
+  color: #333333;
+  margin: 0;
+  font-weight: bold;
 `;
 
 const ManageButton = styled.button`
   background-color: #9333ea;
   color: white;
   border: none;
-  margin-right: 20px;
-  padding: 10px 20px;
+  padding: 10px 16px;
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
   display: flex;
   align-items: center;
   transition: background-color 0.3s ease;
+
   &:hover {
     background-color: #7e22ce;
   }
+
   @media (max-width: 768px) {
-    padding: 8px 16px;
-    font-size: 14px;
+    padding: 8px 12px;
+    font-size: 16px;
+    font-weight: 500;
   }
 `;
 
+// Adjust BodyContainer to account for the fixed header
+const BodyContainer = styled.div`
+  position: relative;
+  padding: 100px 20px 20px 20px; /* Added padding-top to prevent overlap with the fixed header */
+  max-width: 1200px;
+  margin: 0 auto;
+`;
+
+
+// Existing Styled Components
 const ListingsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
   margin-bottom: 20px;
+
   @media (max-width: 768px) {
     flex-direction: column;
     gap: 15px;
@@ -75,10 +93,12 @@ const AddListingButton = styled.button`
   align-items: center;
   margin: 0 auto;
   transition: background-color 0.3s ease, color 0.3s ease;
+
   &:hover {
     background-color: #3b82f6;
     color: #ffffff;
   }
+
   @media (max-width: 768px) {
     padding: 10px 20px;
     font-size: 20px;
@@ -96,6 +116,7 @@ const ModalButton = styled.button`
   cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.3s ease;
+
   &:hover {
     background-color: #9333ea;
   }
@@ -117,54 +138,85 @@ const LoaderWrapper = styled.div`
   height: 80vh;
 `;
 
+// Main Component
 const ListingView = ({
-    userListings,
-    isManaging,
-    handleRemoveListing,
-    handleUpdateListing,
-    handleListYourPlaceClick,
-    isDrawerOpen,
-    setIsDrawerOpen,
-    handleFormSubmit,
-    editingListing,
-    showProfileModal,
-    closeModal,
-    navigateToProfile,
-    loading,
-    error,
-    listingIds,
-    setEditingListing,
-    handleManageToggle, 
-    currentUser,
-    userData,
-  }) => {
-  
-    if (loading) {
-      return (
-        <LoaderWrapper>
-          <Loader />
-        </LoaderWrapper>
-      );
-    }
-  
-    if (error) {
-      return <ErrorContainer>{error}</ErrorContainer>;
-    }
-  
+  userListings,
+  isManaging,
+  handleRemoveListing,
+  handleUpdateListing,
+  handleListYourPlaceClick,
+  isDrawerOpen,
+  setIsDrawerOpen,
+  handleFormSubmit,
+  editingListing,
+  showProfileModal,
+  closeModal,
+  navigateToProfile,
+  loading,
+  error,
+  listingIds,
+  setEditingListing,
+  handleManageToggle,
+  currentUser,
+  userData,
+}) => {
+  if (loading) {
     return (
-      <BodyContainer>
+      <>
+        <FixedHeader>
+          <HeaderTitle>My Listings</HeaderTitle>
+          {userListings.length > 0 && (
+            <ManageButton onClick={handleManageToggle}>
+              {isManaging ? "Done" : "Manage Listings"}
+            </ManageButton>
+          )}
+        </FixedHeader>
+        <BodyContainer>
+          <LoaderWrapper>
+            <Loader />
+          </LoaderWrapper>
+        </BodyContainer>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <FixedHeader>
+          <HeaderTitle>My Listings</HeaderTitle>
+          {userListings.length > 0 && (
+            <ManageButton onClick={handleManageToggle}>
+              {isManaging ? "Done" : "Manage Listings"}
+            </ManageButton>
+          )}
+        </FixedHeader>
+        <BodyContainer>
+          <ErrorContainer>{error}</ErrorContainer>
+        </BodyContainer>
+      </>
+    );
+  }
+
+  return (
+    <>
+      {/* Fixed Header */}
+      <FixedHeader>
+        <HeaderTitle>My Listings</HeaderTitle>
         {userListings.length > 0 && (
-          <HeaderSection>
-            <ManageSection>
-              <ManageButton onClick={handleManageToggle}>
-                {isManaging ? "Stop Managing" : "Manage Listings"}
-              </ManageButton>
-            </ManageSection>
-          </HeaderSection>
+          <ManageButton onClick={handleManageToggle}>
+            {isManaging ? "Done" : "Manage Listings"}
+          </ManageButton>
         )}
-  
+      </FixedHeader>
+
+      {/* Main Content */}
+      <BodyContainer>
         {userListings.length === 0 ? (
-          <ListYourPlaceCard onButtonClick={handleListYourPlaceClick} currentUser={currentUser}/>
+          <ListYourPlaceCard
+            onButtonClick={handleListYourPlaceClick}
+            currentUser={currentUser}
+          />
         ) : (
           <>
             <ListingsContainer>
@@ -186,7 +238,7 @@ const ListingView = ({
             )}
           </>
         )}
-  
+
         <BottomDrawer
           isOpen={isDrawerOpen}
           onClose={() => {
@@ -208,7 +260,7 @@ const ListingView = ({
             initialData={editingListing}
           />
         </BottomDrawer>
-  
+
         <Modal
           isModalOpen={showProfileModal}
           closeModal={closeModal}
@@ -218,7 +270,8 @@ const ListingView = ({
           <ModalButton onClick={navigateToProfile}>Go to Profile</ModalButton>
         </Modal>
       </BodyContainer>
-    );
-  };
-  
-  export default ListingView;
+    </>
+  );
+};
+
+export default ListingView;

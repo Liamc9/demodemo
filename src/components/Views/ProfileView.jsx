@@ -1,13 +1,12 @@
 // src/components/ProfileView.js
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import styled from "styled-components";
 import Input from "../Input";
-import { ChevronLeftIcon } from "liamc9npm";
+import { ChevronLeftIcon } from "../icons/Icons"; // Updated import path
 import "react-toastify/dist/ReactToastify.css";
 import DeleteAccountModal from "../DeleteAccountModal";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import { toast } from "react-toastify";
 
 // Styled Components (same as in original Profile.js)
@@ -19,43 +18,47 @@ const ProfileContainer = styled.div`
   padding: 20px;
   max-width: 600px;
   margin: 0 auto;
+  position: relative; /* Make it a positioned parent for the absolute BackButton */
 `;
 
 const Header = styled.div`
   width: 100%;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 100px;
 `;
 
-const IconButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
+const BackButton = styled.button`
+  position: absolute;
+  top: 20px; /* Adjust as needed */
+  left: 20px; /* Adjust as needed */
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e0e0e0;
+  padding: 5px;
+  border-radius: 50%;
+  background-color: #ffffff;
   display: flex;
+  justify-content: center;
   align-items: center;
-
-  svg {
-    width: 24px;
-    height: 24px;
-    color: black;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 50; /* Ensure it's above the conversation content */
   }
 `;
 
 const SaveButton = styled.button`
+  cursor: pointer;  
+  position: absolute;
+  top: 20px; /* Adjust as needed */
+  right: 20px; /* Adjust as needed */
   padding: 10px 20px;
   font-size: 1rem;
   color: #fff;
   background-color: black;
   border: none;
   border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
 
-  &:hover {
-    background-color: #333;
-  }
 
   &:disabled {
     background-color: #777;
@@ -131,6 +134,7 @@ const DeleteButton = styled.button`
   }
 `;
 
+// Display Component
 const ProfileView = ({
   firstName,
   setFirstName,
@@ -147,29 +151,30 @@ const ProfileView = ({
   setNewProfilePicFile,
   newProfilePicFile,
 }) => {
+  const navigate = useNavigate();
 
-    const handleProfilePicSelect = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const validTypes = ["image/jpeg", "image/png", "image/gif"];
-        if (!validTypes.includes(file.type)) {
-          toast.error("Only JPEG, PNG, and GIF files are allowed.");
-          return;
-        }
-  
-        const maxSize = 5 * 1024 * 1024; // 5MB
-        if (file.size > maxSize) {
-          toast.error("File size exceeds 5MB.");
-          return;
-        }
-  
-        setNewProfilePicFile(file);
-        const previewURL = URL.createObjectURL(file);
-        setProfilePic(previewURL);
+  const handleProfilePicSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const validTypes = ["image/jpeg", "image/png", "image/gif"];
+      if (!validTypes.includes(file.type)) {
+        toast.error("Only JPEG, PNG, and GIF files are allowed.");
+        return;
       }
-    };
 
-      useEffect(() => {
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        toast.error("File size exceeds 5MB.");
+        return;
+      }
+
+      setNewProfilePicFile(file);
+      const previewURL = URL.createObjectURL(file);
+      setProfilePic(previewURL);
+    }
+  };
+
+  useEffect(() => {
     return () => {
       if (newProfilePicFile) {
         URL.revokeObjectURL(profilePic);
@@ -177,7 +182,6 @@ const ProfileView = ({
     };
   }, [newProfilePicFile, profilePic]);
 
-const navigate = useNavigate();
   const handleDeleteAccount = () => {
     setShowDeleteModal(true);
   };
@@ -186,33 +190,35 @@ const navigate = useNavigate();
     setShowDeleteModal(false);
   };
 
-  const handleNavigateBack = () => {
-    navigate(`/settings/${currentUser?.uid}`);
+  const handleBackClick = () => {
+    window.history.back();
+    // Alternatively, use navigate(-1) if you prefer:
+    // navigate(-1);
   };
 
-    const triggerFileInput = () => {
-      if (fileInputRef.current) {
-        fileInputRef.current.click();
-      }
-    };
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
-    useEffect(() => {
-      if (userData) {
-        setFirstName(userData.displayName || "");
-        setProfilePic(userData.photoURL || "https://via.placeholder.com/120");
-      }
-    }, [userData]);
+  useEffect(() => {
+    if (userData) {
+      setFirstName(userData.displayName || "");
+      setProfilePic(userData.photoURL || "https://via.placeholder.com/120");
+    }
+  }, [userData]);
 
   return (
     <ProfileContainer>
       <Header>
-        <IconButton onClick={handleNavigateBack} aria-label="Go back to settings">
+        <BackButton onClick={handleBackClick} aria-label="Go back to settings">
           <ChevronLeftIcon />
-        </IconButton>
+        </BackButton>
         <SaveButton onClick={handleSaveChanges} disabled={isSaving}>
           {isSaving ? "Saving..." : "Save Changes"}
         </SaveButton>
-      </Header>
+        </Header>
 
       <ProfileImageWrapper>
         <ProfileImage image={profilePic} onClick={triggerFileInput} />

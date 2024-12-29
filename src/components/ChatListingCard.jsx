@@ -63,10 +63,6 @@ const CardDetails = styled.div`
     display: flex;
     align-items: center;
 
-    &:hover {
-        background-color: #4338ca;
-    }
-
     span {
         font-weight: bold;
     }
