@@ -1,5 +1,4 @@
 // src/components/conversationView.jsx
-
 import React from 'react';
 import styled from 'styled-components';
 import Chat from '../Chat';
@@ -11,15 +10,20 @@ const ConversationContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: flex-start; /* Align to flex-start to accommodate the fixed card */
-  height: 100vh;
-  padding-top: 160px; /* Space for the fixed ChatListingCard */
+  /* Instead of forcing a 100vh height, use min-height and allow scrolling */
+  min-height: 100vh;
+  /* Provide enough top padding so chat isn't behind the fixed card */
+  padding-top: 160px; /* Adjust based on the height of ChatListingCard */
   box-sizing: border-box;
   background-color: #f9fafb; /* Light background for better contrast */
   position: relative; /* Make it a positioned parent for the absolute BackButton */
+
+  /* This allows the entire container to scroll if content exceeds the window */
+  overflow-y: auto;
 `;
 
 const BackButton = styled.button`
-  position: absolute;
+  position: fixed;
   top: 20px; /* Adjust as needed */
   left: 20px; /* Adjust as needed */
   width: 40px;
@@ -34,6 +38,10 @@ const BackButton = styled.button`
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 50; /* Ensure it's above the conversation content */
+
+  svg {
+    width: 24px;
+    height: 24px;
   }
 `;
 

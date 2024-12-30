@@ -1,4 +1,5 @@
-// FilterDrawer.js
+// src/components/FilterDrawer.js
+
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import SelectInput from "../../atoms/inputs/SelectInput";
@@ -50,63 +51,6 @@ const Button = styled.button`
   background-color: ${(props) => (props.primary ? "#A855F7" : "#e0e0e0")};
   color: ${(props) => (props.primary ? "#fff" : "#333")};
 `;
-
-// Constants for Months and Counties
-const MONTHS = [
-  { value: "jan", label: "Jan" },
-  { value: "feb", label: "Feb" },
-  { value: "mar", label: "Mar" },
-  { value: "apr", label: "Apr" },
-  { value: "may", label: "May" },
-  { value: "jun", label: "Jun" },
-  { value: "jul", label: "Jul" },
-  { value: "aug", label: "Aug" },
-  { value: "sep", label: "Sep" },
-  { value: "oct", label: "Oct" },
-  { value: "nov", label: "Nov" },
-  { value: "dec", label: "Dec" },
-];
-
-const COUNTIES = [
-  "Carlow",
-  "Cavan",
-  "Clare",
-  "Cork",
-  "Derry",
-  "Donegal",
-  "Down",
-  "Dublin",
-  "Fermanagh",
-  "Galway",
-  "Kerry",
-  "Kildare",
-  "Kilkenny",
-  "Laois",
-  "Leitrim",
-  "Limerick",
-  "Longford",
-  "Louth",
-  "Mayo",
-  "Meath",
-  "Monaghan",
-  "Offaly",
-  "Roscommon",
-  "Sligo",
-  "Tipperary",
-  "Tyrone",
-  "Waterford",
-  "Westmeath",
-  "Wexford",
-  "Wicklow",
-  // Add more counties if necessary
-];
-
-const TYPE_OPTIONS = [
-  { value: "house", label: "House" },
-  { value: "apartment", label: "Apartment" },
-  { value: "room", label: "Room" },
-  // Add more types if necessary
-];
 
 const FilterDrawer = ({
   selectedFilters,
@@ -280,5 +224,62 @@ const FilterDrawer = ({
     </DrawerContainer>
   );
 };
+
+// Constants for Months and Counties
+const MONTHS = [
+  { value: "jan", label: "Jan" },
+  { value: "feb", label: "Feb" },
+  { value: "mar", label: "Mar" },
+  { value: "apr", label: "Apr" },
+  { value: "may", label: "May" },
+  { value: "jun", label: "Jun" },
+  { value: "jul", label: "Jul" },
+  { value: "aug", label: "Aug" },
+  { value: "sep", label: "Sep" },
+  { value: "oct", label: "Oct" },
+  { value: "nov", label: "Nov" },
+  { value: "dec", label: "Dec" },
+];
+
+const COUNTIES = [
+  "Carlow",
+  "Cavan",
+  "Clare",
+  "Cork",
+  "Derry",
+  "Donegal",
+  "Down",
+  "Dublin",
+  "Fermanagh",
+  "Galway",
+  "Kerry",
+  "Kildare",
+  "Kilkenny",
+  "Laois",
+  "Leitrim",
+  "Limerick",
+  "Longford",
+  "Louth",
+  "Mayo",
+  "Meath",
+  "Monaghan",
+  "Offaly",
+  "Roscommon",
+  "Sligo",
+  "Tipperary",
+  "Tyrone",
+  "Waterford",
+  "Westmeath",
+  "Wexford",
+  "Wicklow",
+  // Add more counties if necessary
+];
+
+const TYPE_OPTIONS = [
+  { value: "house", label: "House" },
+  { value: "apartment", label: "Apartment" },
+  { value: "room", label: "Room" },
+  // Add more types if necessary
+];
 
 export default FilterDrawer;

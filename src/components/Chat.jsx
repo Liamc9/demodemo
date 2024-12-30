@@ -1,5 +1,5 @@
 // src/components/Chat.js
-import React, {  useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import styled, { css } from 'styled-components';
 import { useAuth } from '../context/AuthContext';
 
@@ -12,7 +12,6 @@ const ChatContainer = styled.div`
   width: 100%;
   max-width: 800px; /* Increased width for better readability */
   margin: 0 auto;
-  border: 1px solid #e0e0e0;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
@@ -27,10 +26,11 @@ const LoadingMessage = styled.div`
 
 const ChatMessages = styled.div`
   flex: 1;
-  padding: 20px;
+  padding: 20px 20px 80px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end; /* Align messages to the bottom */
 `;
 
 const MessageContainer = styled.div`
@@ -75,7 +75,6 @@ const MessageBubble = styled.div`
   text-align: ${(props) => (props.sent ? 'right' : 'left')};
 `;
 
-
 const MessageText = styled.span`
   font-size: 1em;
   word-wrap: break-word;
@@ -90,11 +89,16 @@ const MessageTimestamp = styled.span`
 `;
 
 const ChatInputContainer = styled.div`
+position: fixed;
+bottom: 0;
+width: 100%;
+height: 80px;
   padding: 15px;
   border-top: 1px solid #e0e0e0;
   background-color: #ffffff;
   display: flex;
   align-items: center;
+  flex-shrink: 0; /* Prevents the input from shrinking */
 `;
 
 const ChatInput = styled.input`
@@ -134,7 +138,13 @@ const SendButton = styled.button`
 
 // Chat Component
 
-const Chat = ({ conversation, handleSendMessage, newMessage, setNewMessage, messagesEndRef }) => {
+const Chat = ({
+  conversation,
+  handleSendMessage,
+  newMessage,
+  setNewMessage,
+  messagesEndRef,
+}) => {
   const { currentUser } = useAuth();
 
   // Memoize participant map to avoid unnecessary recalculations
@@ -153,7 +163,6 @@ const Chat = ({ conversation, handleSendMessage, newMessage, setNewMessage, mess
     }
   }, [conversation, conversation?.messages]);
 
-
   // If conversation is not yet loaded, show loading message
   if (!conversation) {
     return <LoadingMessage>Loading conversation...</LoadingMessage>;
@@ -170,7 +179,10 @@ const Chat = ({ conversation, handleSendMessage, newMessage, setNewMessage, mess
           const isSentByCurrentUser = message.sender === currentUser?.uid;
           const sender = participantMap[message.sender];
           return (
-            <MessageContainer key={message.id || message.localTimestamp} sent={isSentByCurrentUser}>
+            <MessageContainer
+              key={message.id || message.localTimestamp}
+              sent={isSentByCurrentUser}
+            >
               {!isSentByCurrentUser && sender?.avatarUrl && (
                 <MessageAvatar src={sender.avatarUrl} alt={sender.name} />
               )}
@@ -186,7 +198,11 @@ const Chat = ({ conversation, handleSendMessage, newMessage, setNewMessage, mess
                 </MessageTimestamp>
               </div>
               {isSentByCurrentUser && currentUser?.photoURL && (
-                <MessageAvatar src={currentUser.photoURL} alt="You" sent />
+                <MessageAvatar
+                  src={currentUser.photoURL}
+                  alt="You"
+                  sent
+                />
               )}
             </MessageContainer>
           );
@@ -202,13 +218,15 @@ const Chat = ({ conversation, handleSendMessage, newMessage, setNewMessage, mess
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
         />
-        <SendButton onClick={handleSendMessage} disabled={!newMessage.trim()}>
+        <SendButton
+          onClick={handleSendMessage}
+          disabled={!newMessage.trim()}
+        >
           Send
         </SendButton>
       </ChatInputContainer>
     </ChatContainer>
   );
 };
-
 
 export default Chat;

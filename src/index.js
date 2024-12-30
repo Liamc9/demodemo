@@ -10,7 +10,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'; // Import useAuth
 import Listing from './routes/Listing';
 import Explore from './routes/Explore';
 import Messages from './routes/Messages';
-import ManageAccount from './routes/ManageAccount';
+import ManageNotifications from './routes/ManageNotifications';
 import Rooms from './routes/Rooms';
 import Profile from './routes/Profile';
 import { ToastContainer } from "react-toastify";
@@ -45,7 +45,7 @@ const router = createBrowserRouter([
       { path: 'listing', element: <Listing /> }, // Protected route
       { path: 'explore', element: <Explore /> }, // Protected route
       { path: 'messages', element: <Messages /> }, // Protected route
-      { path: 'settings/manageaccount', element: <RequireAuth><ManageAccount /></RequireAuth> }, // Protected route
+      { path: 'settings/:userid/manageNotifications', element: <RequireAuth><ManageNotifications /></RequireAuth> }, // Protected route
       { path: 'rooms/:id', element: <Rooms />}, // Protected route
       { path: 'profile/:id', element: <Profile />}, // Protected route
       { path: 'conversation/:conversationId', element: <RequireAuth><Conversation/></RequireAuth>}

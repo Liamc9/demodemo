@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 const SettingsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Full height to position footer at the bottom */
   padding: 2rem; /* Increased padding for larger layout */
 `;
 
@@ -148,12 +147,11 @@ const SettingsView = ({ settings, logout, currentUser, userData }) => {
   if (!userData) {
     return <LoadingMessage>Loading user data...</LoadingMessage>;
   }
-
   return (
     <SettingsContainer>
       {/* Profile Section */}
       {userData && (
-        <ProfileSection to={`/profile/${userData.id}`}>
+        <ProfileSection to={`/profile/${currentUser.uid}`}>
           <ProfileImage image={userData.photoURL} />
           <ProfileInfo>
             <ProfileName>{userData.displayName || "User Name"}</ProfileName>

@@ -54,33 +54,13 @@ const DeleteButton = styled.button`
   }
 `;
 
-const ManageAccount = () => {
-  const [email, setEmail] = useState('user@example.com');
-  const [language, setLanguage] = useState('English');
+const ManageNotifications = () => {
   const [notifications, setNotifications] = useState(true);
 
   const navigate = useNavigate();
 
   const accountItems = [
-    {
-      type: 'EditableTextField',
-      props: {
-        icon: UserIcon2,
-        name: 'Email Address',
-        value: email,
-        onUpdate: setEmail,
-      },
-    },
-    {
-      type: 'SelectField',
-      props: {
-        icon: UserIcon2,
-        name: 'Language',
-        value: language,
-        options: ['English', 'Spanish', 'French'],
-        onChange: setLanguage,
-      },
-    },
+  
     {
       type: 'ToggleField',
       props: {
@@ -121,4 +101,4 @@ const ManageAccount = () => {
   );
 };
 
-export default ManageAccount;
+export default ManageNotifications;

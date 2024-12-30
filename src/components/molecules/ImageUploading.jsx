@@ -18,7 +18,6 @@ const ImageUploading = ({
     maxLimit: "You can only upload up to {maxImages} images.",
     invalidFormat: "Only JPG, PNG, and GIF formats are allowed.",
     success: "You have successfully uploaded {count} images.",
-    rearrange: "You can rearrange the order of images by dragging them.",
   },
 }) => {
   const inputRef = useRef(null);
@@ -68,7 +67,6 @@ const ImageUploading = ({
         uploadedImages.find((img) => img.id === id)
       );
       setUploadedImages(reorderedImages);
-      toast.info(customMessages.rearrange, { autoClose: 2000 });
     });
 
     // Attach mousedown and touchstart events to draggable items to disable scroll immediately
@@ -90,7 +88,7 @@ const ImageUploading = ({
         item.removeEventListener("touchstart", handlePointerDown);
       });
     };
-  }, [uploadedImages, setUploadedImages, customMessages.rearrange]);
+  }, [uploadedImages, setUploadedImages]);
 
   // Helper function to crop image to 1:1 aspect ratio
   const cropImageToSquare = (file) => {
@@ -339,7 +337,6 @@ ImageUploading.propTypes = {
     maxLimit: PropTypes.string,
     invalidFormat: PropTypes.string,
     success: PropTypes.string,
-    rearrange: PropTypes.string,
   }),
 };
 

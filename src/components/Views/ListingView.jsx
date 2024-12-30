@@ -1,6 +1,6 @@
 // src/components/ListingView.jsx
 
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import ListYourPlaceCard from "../cards/ListYourPlaceCard";
 import ListingCard from "../cards/ListingCard";
@@ -9,6 +9,8 @@ import ListingForm from "../molecules/ListingForm";
 import Modal from "../Modal";
 import Loader from "../Loader";
 import { PlusIcon } from "../icons/Icons";
+import DeleteAccountModal from "../DeleteModal"; // Import the DeleteAccountModal
+
 
 // New Styled Component for Fixed Header
 const FixedHeader = styled.header`
@@ -23,7 +25,7 @@ const FixedHeader = styled.header`
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
-  z-index: 1000; /* Ensure it stays above other elements */
+  z-index: 40; /* Ensure it stays above other elements */
 `;
 
 const HeaderTitle = styled.h1`
@@ -137,8 +139,6 @@ const LoaderWrapper = styled.div`
   align-items: center;
   height: 80vh;
 `;
-
-// Main Component
 const ListingView = ({
   userListings,
   isManaging,
@@ -160,6 +160,32 @@ const ListingView = ({
   currentUser,
   userData,
 }) => {
+  // State for Delete Modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [listingToDelete, setListingToDelete] = useState(null);
+
+  // Handler to open the delete modal
+  const openDeleteModal = (listingId) => {
+    setListingToDelete(listingId);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Handler to confirm deletion
+  const confirmDelete = async (password) => { // Assuming password is not required
+    // Since requiresPassword is false, password can be ignored
+    if (listingToDelete) {
+      await handleRemoveListing(listingToDelete);
+      setListingToDelete(null);
+      setIsDeleteModalOpen(false);
+    }
+  };
+
+  // Handler to cancel deletion
+  const cancelDelete = () => {
+    setListingToDelete(null);
+    setIsDeleteModalOpen(false);
+  };
+
   if (loading) {
     return (
       <>
@@ -226,7 +252,7 @@ const ListingView = ({
                   data={listing}
                   isManaging={isManaging}
                   onUpdate={handleUpdateListing}
-                  onRemove={handleRemoveListing}
+                  onRemove={() => openDeleteModal(listing.id)} // Open modal on delete
                 />
               ))}
             </ListingsContainer>
@@ -269,6 +295,18 @@ const ListingView = ({
           <p>You must complete your profile to post a listing.</p>
           <ModalButton onClick={navigateToProfile}>Go to Profile</ModalButton>
         </Modal>
+
+        {/* Delete Account Modal */}
+        {isDeleteModalOpen && (
+          <DeleteAccountModal
+            onCancel={cancelDelete}
+            onConfirm={confirmDelete}
+            title="Confirm Deletion"
+            message="Are you sure you want to delete this listing?"
+            animate={true}
+            requiresPassword={false} // Set to true if password confirmation is needed
+          />
+        )}
       </BodyContainer>
     </>
   );

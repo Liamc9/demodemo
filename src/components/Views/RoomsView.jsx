@@ -3,23 +3,23 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import ImageCarousel2 from "../ImageCarousel2";
-import { CalendarIcon, LocationIcon, ChevronLeftIcon } from "../icons/Icons"; // Import ChevronLeftIcon
+import { CalendarIcon, LocationIcon, ChevronLeftIcon, ShareIcon } from "../icons/Icons"; // Import ShareIcon
 import MapWithMarker from "../Map";
 import BottomDrawer from "../Drawers/BottomDrawer";
 import MessageForm from "../MessageForm";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
+import { toast } from "react-toastify"; // Import toast for notifications
 
 // Styled Components (Moved from Rooms.jsx)
 const RoomContainer = styled.div`
   display: flex;
   flex-direction: column;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0 auto 50px;
   padding-bottom: 100px; /* Space for the fixed bottom bar */
   position: relative; /* Make it a positioned parent for the absolute BackButton */
 `;
-
 
 const BackButton = styled.button`
   position: absolute;
@@ -37,7 +37,36 @@ const BackButton = styled.button`
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 50; /* Ensure it's above the conversation content */
+
+  svg {
+    width: 24px;
+    height: 24px;
   }
+`;
+
+const ShareButtonTopRight = styled.button`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e0e0e0; /* Gray border */
+  padding: 5px;
+  border-radius: 50%; /* Make it a circle */
+  background-color: #ffffff; /* White background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 50; /* Ensure it's above the images */
+  
+  svg {
+    width: 24px;
+    height: 24px;
+    stroke: #333; /* Darken the icon */
+  }
+
 `;
 
 const ImageContainer = styled.div`
@@ -117,9 +146,8 @@ const SectionContent = styled.div`
   font-size: 1rem;
   color: #666;
   text-align: left;
-  width: 100%;
   line-height: 1.5;
-  margin-left: 1rem;
+  margin: 0 1rem;
 `;
 
 // New Styled Components for Location
@@ -127,7 +155,11 @@ const LocationContainer = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 10px; /* Space between address and map */
-  width: 90%;
+
+  svg {
+    width: 25px;
+    height: 25px;
+  }
 `;
 
 const AddressText = styled.span`
@@ -178,12 +210,13 @@ const SendMessageButton = styled.button`
   border-radius: 8px;
   cursor: pointer;
 
-
   &:disabled {
     background-color: #aaa;
     cursor: not-allowed;
   }
 `;
+
+// Styled components for Share Button are already defined above
 
 const ErrorContainer = styled.div`
   display: flex;
@@ -231,13 +264,41 @@ const RoomsView = ({
 
   const images = roomData.images && Array.isArray(roomData.images) ? roomData.images : [];
 
+  // Share Handler
+  const handleShare = async () => {
+    const shareData = {
+      title: roomData.title || "Check out this room!",
+      text: roomData.description || "I found this awesome room you might be interested in.",
+      url: window.location.href, // Current page URL
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        toast.success("Room shared successfully!");
+      } else {
+        // Fallback: Copy the URL to the clipboard
+        await navigator.clipboard.writeText(shareData.url);
+        toast.info("Room URL copied to clipboard. Share it manually!");
+      }
+    } catch (error) {
+      console.error("Error sharing:", error);
+      toast.error("Failed to share the room.");
+    }
+  };
+
   return (
     <>
       <RoomContainer>
         {/* Back Button */}
         <BackButton onClick={handleBackClick} aria-label="Go Back">
-          <ChevronLeftIcon />
+          <ChevronLeftIcon className='w-6 h-6'/>
         </BackButton>
+
+        {/* Share Button */}
+        <ShareButtonTopRight onClick={handleShare} aria-label="Share">
+          <ShareIcon className='w-6 h-6' />
+        </ShareButtonTopRight>
 
         <ImageContainer>
           {images.length > 0 ? (
@@ -266,9 +327,11 @@ const RoomsView = ({
         <SectionHeader>Location</SectionHeader>
         <SectionContent>
           <LocationContainer>
-            <LocationIcon className="w-6 h-6" />
+            <div className="icon-container">
+              <LocationIcon />
+            </div>
             <AddressText>
-              {roomData.streetAddress ? roomData.streetAddress : "No address provided"}, {roomData.city ? roomData.city : "City"}, {roomData.county ? roomData.county : "County"}, {roomData.eircode ? roomData.eircode : "eirCode"}
+              {roomData.streetAddress ? roomData.streetAddress : "No address provided"}, {roomData.city ? roomData.city : "City"}, {roomData.county ? roomData.county : "County"}, {roomData.eircode ? roomData.eircode : "Eircode"}
             </AddressText>
           </LocationContainer>
           <MapWithMarker eircode={roomData.eircode} />

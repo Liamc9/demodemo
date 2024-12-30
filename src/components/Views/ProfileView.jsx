@@ -44,6 +44,10 @@ const BackButton = styled.button`
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 50; /* Ensure it's above the conversation content */
+
+  svg {
+    width: 24px;
+    height: 24px;
   }
 `;
 

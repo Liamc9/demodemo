@@ -136,7 +136,7 @@ const ListingForm = ({ onClose, onSubmit, initialData }) => {
     resetForm();
   }, [formData, uploadedImages, onSubmit, resetForm]);
 
-  const pageHeadings = ["Location", "Sublet Details & Images"];
+  const pageHeadings = ["Location", "Sublet Details"];
   const pages = [
     <PageOne key="page1" formData={formData} handleChange={handleChange} />,
     <PageTwo
@@ -381,18 +381,12 @@ const FormContainer = styled.div`
   position: relative;
   max-width: 600px;
   margin: 0px auto 40px; /* Added top margin for spacing */
-  padding: 20px 30px;
+  padding: 15px 20px;
   background: #ffffff;
   display: flex;
   flex-direction: column;
   min-height: 80vh; /* Adjusted height for better spacing */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-
-  @media (max-width: 640px) {
-    padding: 15px 20px;
-    min-height: auto;
-  }
 `;
 
 const Heading = styled.h1`
@@ -427,7 +421,7 @@ const ProgressFill = styled.div`
 const NavButtons = styled.div`
   display: flex;
   justify-content: ${({ hasPrev }) => (hasPrev ? "space-between" : "flex-end")};
-  padding: 10px 0;
+  padding: 14px 10px;
   background-color: #ffffff;
   position: fixed;
   bottom: 0;
@@ -436,16 +430,13 @@ const NavButtons = styled.div`
   border-top: 1px solid #e0e0e0;
   z-index: 1000;
 
-  @media (max-width: 640px) {
-    padding: 8px 10px;
-  }
 `;
 
 // Styled Components for Buttons
 
 const PrevButton = styled.button`
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 20px;
   cursor: pointer;
   border: none;
   border-radius: 4px;
@@ -457,15 +448,11 @@ const PrevButton = styled.button`
     background-color: #a1a1aa; /* Darker gray on hover */
   }
 
-  @media (max-width: 640px) {
-    padding: 8px 16px;
-    font-size: 14px;
-  }
 `;
 
 const NextButton = styled.button`
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 20px;
   cursor: pointer;
   border: none;
   border-radius: 4px;
@@ -476,16 +463,11 @@ const NextButton = styled.button`
   &:hover {
     background-color: #333333; /* Darker black on hover */
   }
-
-  @media (max-width: 640px) {
-    padding: 8px 16px;
-    font-size: 14px;
-  }
 `;
 
 const SubmitButton = styled.button`
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 20px;
   cursor: pointer;
   border: none;
   border-radius: 4px;
@@ -498,10 +480,6 @@ const SubmitButton = styled.button`
     background-color: #9333ea; /* Tailwind's purple-600 */
   }
 
-  @media (max-width: 640px) {
-    padding: 8px 16px;
-    font-size: 14px;
-  }
 `;
 
 const BackButton = styled.button`

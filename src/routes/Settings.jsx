@@ -18,16 +18,10 @@ function SettingsPage() {
         currentUser={currentUser} // Pass currentUser
         settings={[
           {
-            category: "Account",
-            icon: UsersIcon,
-            text: "Manage Account",
-            link: "./manageaccount",
-          },
-          {
             category: "Communication",
             icon: NotificationsIcon,
             text: "Email Notifications",
-            link: "/email-notifications",
+            link: `manageNotifications`,
           },
         ]}
       />

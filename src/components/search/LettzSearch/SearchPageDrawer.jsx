@@ -1,4 +1,5 @@
-// SearchPageDrawer.js
+// src/components/SearchPageDrawer.js
+
 import React, { useState, useMemo, useEffect } from "react";
 import styled from "styled-components";
 import GhostLoader from "../../GhostLoader";
@@ -77,17 +78,18 @@ const SearchPageDrawer = ({ searchResults = [] }) => {
     console.log("Selected Sort Option:", newSortOption); // Debugging
     setSelectedSortOption(newSortOption);
   };
- // Simulate loading when filters or sorting options change
- useEffect(() => {
-  if (selectedFilters || selectedSortOption) {
-    setCardsLoading(true);
-    // Simulate a delay for loading
-    const timeout = setTimeout(() => {
-      setCardsLoading(false);
-    }, 500); // 500ms delay
-    return () => clearTimeout(timeout);
-  }
-}, [selectedFilters, selectedSortOption]);
+
+  // Simulate loading when filters or sorting options change
+  useEffect(() => {
+    if (selectedFilters || selectedSortOption) {
+      setCardsLoading(true);
+      // Simulate a delay for loading
+      const timeout = setTimeout(() => {
+        setCardsLoading(false);
+      }, 500); // 500ms delay
+      return () => clearTimeout(timeout);
+    }
+  }, [selectedFilters, selectedSortOption]);
 
   // Compute filtered and sorted results using useMemo for optimization
   const sortedResults = useMemo(() => {
@@ -114,41 +116,38 @@ const SearchPageDrawer = ({ searchResults = [] }) => {
 
       // Handle startMonth and endMonth separately for outside range filtering
       if (startMonth || endMonth) {
-        // Ensure the result has a startDate
-        if (!result.startDate) {
+        // Ensure the result has a createdAt
+        if (!result.createdAt) {
           matchesDateFilters = false;
         } else {
-          const resultMonth = getMonthNumber(result.startDate);
-          if (!resultMonth) {
-            // Invalid month abbreviation in result.startDate
+          const resultDate = result.createdAt.toDate(); // Convert Firestore Timestamp to Date
+          const resultMonth = resultDate.getMonth() + 1; // JavaScript months are 0-based
+
+          let condition = false;
+
+          if (startMonth) {
+            const filterStartMonth = getMonthNumber(startMonth);
+            if (filterStartMonth) {
+              // Check if resultMonth is on or after startMonth
+              if (resultMonth >= filterStartMonth) {
+                condition = true;
+              }
+            }
+          }
+
+          if (endMonth) {
+            const filterEndMonth = getMonthNumber(endMonth);
+            if (filterEndMonth) {
+              // Check if resultMonth is on or before endMonth
+              if (resultMonth <= filterEndMonth) {
+                condition = true;
+              }
+            }
+          }
+
+          // Final condition: at least one of the conditions must be true (OR)
+          if (!condition) {
             matchesDateFilters = false;
-          } else {
-            let condition = false;
-
-            if (startMonth) {
-              const filterStartMonth = getMonthNumber(startMonth);
-              if (filterStartMonth) {
-                // Check if resultMonth is on or before startMonth
-                if (resultMonth <= filterStartMonth) {
-                  condition = true;
-                }
-              }
-            }
-
-            if (endMonth) {
-              const filterEndMonth = getMonthNumber(endMonth);
-              if (filterEndMonth) {
-                // Check if resultMonth is on or after endMonth
-                if (resultMonth >= filterEndMonth) {
-                  condition = true;
-                }
-              }
-            }
-
-            // Final condition: at least one of the conditions must be true (OR)
-            if (!condition) {
-              matchesDateFilters = false;
-            }
           }
         }
       }
@@ -226,10 +225,10 @@ const SearchPageDrawer = ({ searchResults = [] }) => {
     if (selectedSortOption) {
       sorted.sort((a, b) => {
         switch (selectedSortOption) {
-          case "title_asc":
-            return a.title.localeCompare(b.title);
-          case "title_desc":
-            return b.title.localeCompare(a.title);
+          case "date_newest":
+            return b.createdAt.toDate() - a.createdAt.toDate(); // Newest first
+          case "date_oldest":
+            return a.createdAt.toDate() - b.createdAt.toDate(); // Oldest first
           case "rent_lowest":
             return a.rent - b.rent;
           case "rent_highest":
@@ -246,8 +245,8 @@ const SearchPageDrawer = ({ searchResults = [] }) => {
   // Define sort options to pass to FilterDrawer
   const sortOptions = [
     { value: "", label: "None" },
-    { value: "title_asc", label: "Title (A-Z)" },
-    { value: "title_desc", label: "Title (Z-A)" },
+    { value: "date_newest", label: "Date Posted (Newest First)" },
+    { value: "date_oldest", label: "Date Posted (Oldest First)" },
     { value: "rent_lowest", label: "Rent (Lowest First)" },
     { value: "rent_highest", label: "Rent (Highest First)" },
   ];
@@ -283,7 +282,7 @@ const SearchPageDrawer = ({ searchResults = [] }) => {
       ) : sortedResults.length > 0 ? (
         <ResultsWrapper>
           {sortedResults.map((result) => (
-            <ListingCard key={result.id} data={result}/>
+            <ListingCard key={result.id} data={result} />
           ))}
         </ResultsWrapper>
       ) : (
@@ -295,7 +294,7 @@ const SearchPageDrawer = ({ searchResults = [] }) => {
         isOpen={isFilterDrawerOpen}
         onClose={handleFilterDrawerClose}
         transitionDuration={300}
-        height="90%"
+        autoheight
       >
         <FilterDrawer
           selectedFilters={selectedFilters}

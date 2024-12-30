@@ -13,9 +13,12 @@ import {
   getFirestore,
   query,
   where,
+  serverTimestamp,
+  getDocs,
+  writeBatch, // Import writeBatch for batch operations
 } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL, list } from "firebase/storage";
-import { useDocument, useCollection } from "react-firebase-hooks/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useCollection } from "react-firebase-hooks/firestore";
 import { db } from "../firebase-config";
 import { useAuth } from "../context/AuthContext";
 import ListingView from "../components/Views/ListingView"; // Corrected import path
@@ -89,21 +92,23 @@ const Listing = () => {
       const title = `${userDisplayName}'s ${formData.type}`;
 
       if (editingListing) {
-        // Update existing listing
+        // Update existing listing with updatedAt timestamp
         await updateDoc(doc(firestore, "listings", editingListing.id), {
           ...formData,
           images: combinedImages,
           title,
+          updatedAt: serverTimestamp(), // Add updatedAt field
         });
         toast.success("Listing updated successfully!");
       } else {
-        // Add new listing
+        // Add new listing with createdAt timestamp
         const listingDoc = await addDoc(collection(firestore, "listings"), {
           ...formData,
           images: combinedImages,
           userId: currentUser.uid,
           photoURL: userData.photoURL,
           title,
+          createdAt: serverTimestamp(), // Add createdAt field
         });
         if (currentUser) {
           await updateDoc(doc(db, "users", currentUser.uid), { listings: arrayUnion(listingDoc.id) });
@@ -119,22 +124,84 @@ const Listing = () => {
     }
   };
 
+  /**
+   * Enhanced handleRemoveListing to also delete related conversations
+   * and update users' conversationIDs arrays accordingly.
+   */
   const handleRemoveListing = async (listingId) => {
     if (!currentUser) {
-      toast.error("You must be logged in.");
+      toast.error("You must be logged in to perform this action.");
       return;
     }
 
-    if (!window.confirm("Are you sure you want to remove this listing?")) return;
-
+    const batch = writeBatch(firestore);
     try {
-      await deleteDoc(doc(firestore, "listings", listingId));
-      if (currentUser) {
-        await updateDoc(doc(db, "users", currentUser.uid), { listings: arrayRemove(listingId) });
+      // Step 1: Delete the listing document
+      const listingRef = doc(firestore, "listings", listingId);
+      batch.delete(listingRef);
+
+      // Step 2: Query conversations with listingId equal to the deleted listing
+      const conversationsQuery = query(
+        collection(firestore, "conversations"),
+        where("listingId", "==", listingId)
+      );
+
+      const conversationsSnapshot = await getDocs(conversationsQuery);
+
+      // Array to hold all conversation IDs to be deleted
+      const conversationIdsToDelete = [];
+
+      // Map to hold conversation ID to participant UIDs
+      const conversationIdToParticipants = new Map();
+
+      conversationsSnapshot.forEach((conversationDoc) => {
+        const convoId = conversationDoc.id;
+        const convoData = conversationDoc.data();
+        conversationIdsToDelete.push(convoId);
+        
+        // Extract participant UIDs
+        const participants = convoData.participants.map(participant => participant.uid);
+        conversationIdToParticipants.set(convoId, participants);
+
+        // Delete each conversation
+        const convoRef = doc(firestore, "conversations", convoId);
+        batch.delete(convoRef);
+      });
+
+      // If there are no conversations to delete, proceed to update user listings
+      if (conversationIdsToDelete.length === 0) {
+        // Remove the listing ID from the user's listings array
+        batch.update(doc(firestore, "users", currentUser.uid), {
+          listings: arrayRemove(listingId),
+        });
+
+        // Commit the batch
+        await batch.commit();
+        toast.success("Listing removed successfully!");
+        return;
       }
-      toast.success("Listing removed successfully!");
+
+      // Step 3: For each conversation ID, remove it from each participant's conversationIDs array
+      conversationIdsToDelete.forEach((convoId) => {
+        const participants = conversationIdToParticipants.get(convoId);
+        participants.forEach((uid) => {
+          const userRef = doc(firestore, "users", uid);
+          batch.update(userRef, {
+            conversationIDs: arrayRemove(convoId),
+          });
+        });
+      });
+
+      // Step 4: Remove the listing ID from the user's listings array
+      batch.update(doc(firestore, "users", currentUser.uid), {
+        listings: arrayRemove(listingId),
+      });
+
+      // Commit the batch
+      await batch.commit();
+      toast.success("Listing and associated conversations removed successfully!");
     } catch (e) {
-      console.error("Error removing listing:", e);
+      console.error("Error removing listing and related data:", e);
       toast.error("Failed to remove listing. Please try again.");
     }
   };

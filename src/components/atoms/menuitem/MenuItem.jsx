@@ -24,7 +24,6 @@ const IconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: inherit;
 `;
 
 const TextWrapper = styled.div`
