@@ -7,6 +7,7 @@ import { CalendarIcon, LocationIcon, ChevronLeftIcon, ShareIcon } from "../icons
 import MapWithMarker from "../Map";
 import BottomDrawer from "../Drawers/BottomDrawer";
 import MessageForm from "../MessageForm";
+import Modal from "../Modal"; // Import Modal
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import { toast } from "react-toastify"; // Import toast for notifications
@@ -227,24 +228,58 @@ const ErrorContainer = styled.div`
   color: red;
 `;
 
+// New Styled Components for Modal Button
+const ModalButton = styled.button`
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #a855f7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #9333ea;
+  }
+`;
+
 // Display Component
 const RoomsView = ({
   roomData,
   handleSend,
   currentUser,
   id,
+  userData, // Assuming userData is passed as a prop for profile completeness
 }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false); // State for Profile Modal
   const navigate = useNavigate();
 
   if (!roomData) {
     return <ErrorContainer>Room not found.</ErrorContainer>;
   }
 
+  // Function to determine if the profile is complete
+  const isProfileComplete = () => {
+    // Define your criteria for profile completeness
+    // For example, check if certain fields are filled out
+    if (!userData) return false;
+    const { name, email, phone } = userData; // Adjust based on your user data structure
+    return name && email && phone; // Example criteria
+  };
+
   const handleSendMessage = () => {
     if (!currentUser) {
       // Redirect to login if the user is not logged in
       navigate("/login", { state: { from: `/rooms/${id}` } });
+      return;
+    }
+
+    if (!isProfileComplete()) {
+      // Open the profile completion modal if profile is incomplete
+      setIsProfileModalOpen(true);
       return;
     }
 
@@ -260,6 +295,15 @@ const RoomsView = ({
     window.history.back();
     // Alternatively, use navigate(-1) if you prefer:
     // navigate(-1);
+  };
+
+  const handleCloseProfileModal = () => {
+    setIsProfileModalOpen(false);
+  };
+
+  const handleNavigateToProfile = () => {
+    setIsProfileModalOpen(false);
+    navigate(`/profile/${currentUser?.uid}`); // Adjust the route to your profile page
   };
 
   const images = roomData.images && Array.isArray(roomData.images) ? roomData.images : [];
@@ -360,6 +404,16 @@ const RoomsView = ({
       >
         <MessageForm onSend={handleSend} onClose={closeDrawer} />
       </BottomDrawer>
+
+      {/* Profile Completion Modal */}
+      <Modal
+        isModalOpen={isProfileModalOpen}
+        closeModal={handleCloseProfileModal}
+        title="Complete Your Profile"
+      >
+        <p>Please complete your profile to send messages.</p>
+        <ModalButton onClick={handleNavigateToProfile}>Go to Profile</ModalButton>
+      </Modal>
     </>
   );
 };
@@ -369,6 +423,7 @@ RoomsView.propTypes = {
   handleSend: PropTypes.func.isRequired,
   currentUser: PropTypes.object,
   id: PropTypes.string.isRequired,
+  userData: PropTypes.object, // Add userData prop for profile completeness
 };
 
 export default RoomsView;

@@ -8,15 +8,40 @@ import FilterDrawer from "./FilterDrawer";
 import SearchButton from "./SearchButton";
 import ListingCard from "../../cards/ListingCard";
 
+// Define breakpoints for responsiveness
+const breakpoints = {
+  mobile: "480px",
+  tablet: "768px",
+  desktop: "1024px",
+};
+
+// Styled component for the results container
 const ResultsWrapper = styled.div`
-  background-color: #f9f9f9;
   margin-top: 100px; /* Ensure content is below the buttons */
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+
+  /* Tablet */
+  @media (min-width: ${breakpoints.tablet}) {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 24px;
+  }
+
+  /* Desktop */
+  @media (min-width: ${breakpoints.desktop}) {
+    grid-template-columns: repeat(3, 1fr);
+    padding: 32px;
+    margin-top: 80px; /* Adjust margin if ButtonsContainer height changes */
+  }
 `;
 
+// Styled component for the buttons container
 const ButtonsContainer = styled.div`
   display: flex;
   align-items: center;
-  padding: 16px;
+  padding: 12px 16px;
   background-color: #ffffff; /* Ensure a consistent background */
   position: fixed; /* Fixed position to stay on top of the viewport */
   top: 0; /* Align to the top of the viewport */
@@ -24,6 +49,48 @@ const ButtonsContainer = styled.div`
   z-index: 20; /* High z-index to stay above other elements */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional shadow for separation */
   border-bottom: 1px solid #e0e0e0; /* Optional border for visual distinction */
+
+  /* Responsive padding */
+  @media (min-width: ${breakpoints.mobile}) {
+    padding: 16px 24px;
+  }
+
+  @media (min-width: ${breakpoints.tablet}) {
+    padding: 20px 32px;
+  }
+
+  @media (min-width: ${breakpoints.desktop}) {
+    padding: 24px 40px;
+  }
+
+  /* Adjust layout for smaller screens */
+  flex-wrap: wrap;
+
+  /* Center items on very small screens */
+  justify-content: center;
+
+  /* Space between items on larger screens */
+  @media (min-width: ${breakpoints.tablet}) {
+    justify-content: space-between;
+  }
+`;
+
+// Styled component for the header or title (optional)
+const Header = styled.h1`
+  font-size: 1.5rem;
+  margin: 0;
+
+  @media (min-width: ${breakpoints.mobile}) {
+    font-size: 1.75rem;
+  }
+
+  @media (min-width: ${breakpoints.tablet}) {
+    font-size: 2rem;
+  }
+
+  @media (min-width: ${breakpoints.desktop}) {
+    font-size: 2.25rem;
+  }
 `;
 
 // Mapping of three-letter lowercase month abbreviations to their numerical values
@@ -268,6 +335,8 @@ const SearchPageDrawer = ({ searchResults = [] }) => {
   return (
     <div>
       <ButtonsContainer>
+        {/* Optionally, you can include a Header or Title here */}
+        {/* <Header>Search Results</Header> */}
         <SearchButton
           onClick={handleFilterDrawerOpen}
           place={displayCounty}
@@ -287,7 +356,7 @@ const SearchPageDrawer = ({ searchResults = [] }) => {
         </ResultsWrapper>
       ) : (
         <ResultsWrapper>
-          <h3>No Results Found</h3>
+          <NoResults>No Results Found</NoResults>
         </ResultsWrapper>
       )}
       <BottomDrawer
@@ -308,5 +377,24 @@ const SearchPageDrawer = ({ searchResults = [] }) => {
     </div>
   );
 };
+
+// Additional styled component for "No Results" message
+const NoResults = styled.h3`
+  text-align: center;
+  color: #777777;
+  font-size: 1.2rem;
+
+  @media (min-width: ${breakpoints.mobile}) {
+    font-size: 1.3rem;
+  }
+
+  @media (min-width: ${breakpoints.tablet}) {
+    font-size: 1.4rem;
+  }
+
+  @media (min-width: ${breakpoints.desktop}) {
+    font-size: 1.5rem;
+  }
+`;
 
 export default SearchPageDrawer;

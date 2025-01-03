@@ -1,6 +1,8 @@
+// src/components/navigation/BottomNav.js
 import React from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
+import { useNotifications } from '../../context/NotificationContext'; // Adjust import path if necessary
 
 // Styled Components
 const BottomNavContainer = styled.nav`
@@ -31,7 +33,6 @@ const NavItem = styled(NavLink)`
     color: #a855f7;
   }
 
-
   svg {
     width: 24px;
     height: 24px;
@@ -51,12 +52,14 @@ const NotificationDot = styled.span`
 
 // Component
 const BottomNav = ({ items }) => {
+  const { notifications } = useNotifications(); // Access notifications
+
   return (
     <BottomNavContainer>
-      {items.map(({ text, icon: Icon, path, hasNotification }, index) => (
+      {items.map(({ text, icon: Icon, path, key }, index) => (
         <NavItem key={index} to={path}>
           <Icon />
-          {hasNotification && <NotificationDot />}
+          {notifications[key] && <NotificationDot />}
           {text}
         </NavItem>
       ))}

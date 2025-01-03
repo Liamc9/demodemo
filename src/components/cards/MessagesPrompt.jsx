@@ -104,14 +104,11 @@ const Button = styled.button`
   }
 `;
 
-const MessagesPrompt = (currentUser) => {
+const MessagesPrompt = () => {
   const navigate = useNavigate(); // Initialize navigation
 
   const handleLoginClick = () => {
-    if (!currentUser) {
-      // Redirect to login if not authenticated
       navigate('/login', { state: { from: '/messages' } });
-    }
   };
 
   return (

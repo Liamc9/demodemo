@@ -73,6 +73,8 @@ const ListingsContainer = styled.div`
   flex-wrap: wrap;
   gap: 20px;
   margin-bottom: 20px;
+  align-items: center;
+  justify-content: center;
 
   @media (max-width: 768px) {
     flex-direction: column;

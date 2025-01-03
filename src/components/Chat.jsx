@@ -62,43 +62,55 @@ const MessageAvatar = styled.img`
   object-fit: cover;
 `;
 
+const MessageContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: ${(props) => (props.sent ? 'flex-end' : 'flex-start')};
+`;
+
 const MessageBubble = styled.div`
   background-color: ${(props) => (props.sent ? '#A855F7' : '#ffffff')};
   color: ${(props) => (props.sent ? '#ffffff' : '#000000')};
-  padding: 12px 18px;
-  max-width: 70%;
+  padding: 10px 16px;
   border-radius: 20px;
-  position: relative;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-left: ${(props) => (props.sent ? 'auto' : '0')};
-  margin-right: ${(props) => (props.sent ? '0' : 'auto')};
+  margin-bottom: 5px;
   text-align: ${(props) => (props.sent ? 'right' : 'left')};
+  
+  /* Layout properties */
+  display: inline-block;
+  max-width: 70%; /* Adjust as needed */
+  min-width: 50px; /* Prevents the bubble from becoming too narrow */
+  
 `;
 
 const MessageText = styled.span`
   font-size: 1em;
-  word-wrap: break-word;
+  
+  /* Text wrapping properties */
+  white-space: normal; /* Allows wrapping */
+  word-break: break-word; /* Breaks long words if necessary */
+  overflow-wrap: break-word; /* Ensures words wrap within the bubble */
 `;
 
 const MessageTimestamp = styled.span`
   font-size: 0.7em;
   color: #757575;
-  margin-top: 5px;
   display: block;
   text-align: ${(props) => (props.sent ? 'right' : 'left')};
 `;
 
 const ChatInputContainer = styled.div`
-position: fixed;
-bottom: 0;
-width: 100%;
-height: 80px;
-  padding: 15px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+  padding: 15px 20px;
   border-top: 1px solid #e0e0e0;
   background-color: #ffffff;
   display: flex;
   align-items: center;
-  flex-shrink: 0; /* Prevents the input from shrinking */
+  box-sizing: border-box;
 `;
 
 const ChatInput = styled.input`
@@ -186,7 +198,7 @@ const Chat = ({
               {!isSentByCurrentUser && sender?.avatarUrl && (
                 <MessageAvatar src={sender.avatarUrl} alt={sender.name} />
               )}
-              <div>
+              <MessageContent sent={isSentByCurrentUser}>
                 <MessageBubble sent={isSentByCurrentUser}>
                   <MessageText>{message.text}</MessageText>
                 </MessageBubble>
@@ -196,7 +208,7 @@ const Chat = ({
                     minute: '2-digit',
                   })}
                 </MessageTimestamp>
-              </div>
+              </MessageContent>
               {isSentByCurrentUser && currentUser?.photoURL && (
                 <MessageAvatar
                   src={currentUser.photoURL}

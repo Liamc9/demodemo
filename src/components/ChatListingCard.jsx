@@ -11,8 +11,10 @@ import { CalendarIcon, LocationIcon, MoneyIcon2 } from "./icons/Icons";
 
 const CardButton = styled.button`
   position: fixed;
-  max-width: 600px;
+  max-width: 800px;
   width: 100%;
+  left: 50%;
+  transform: translateX(-50%);
   background-color: #ffffff;
   border: 1px solid #e5e7eb;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -20,7 +22,7 @@ const CardButton = styled.button`
   display: flex;
   height: 160px;
   cursor: pointer;
-  z-index: 50; /* High z-index to stay above other elements */
+  z-index: 50;
 
   &:hover {
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);

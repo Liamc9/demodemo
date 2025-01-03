@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+// src/context/NotificationContext.js
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { db } from '../firebase-config'; // Ensure you have Firebase initialized
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
@@ -11,10 +12,10 @@ export const useNotifications = () => useContext(NotificationContext);
 // Provider component
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState({
-    home: false,
-    search: false,
-    profile: false,
-    settings: false,
+    explore: false,
+    listing: false,
+    account: false,
+    messages: false, // Added messages notification
   });
 
   const { currentUser } = useAuth(); // Get the current user from AuthContext
@@ -29,7 +30,12 @@ export const NotificationProvider = ({ children }) => {
 
           if (docSnap.exists()) {
             const userData = docSnap.data();
-            setNotifications(userData.notifications || {});
+            setNotifications(userData.notifications || {
+              explore: false,
+              listing: false,
+              account: false,
+              messages: false,
+            });
           } else {
             // If no notifications field exists, initialize it
             await setDoc(
@@ -47,13 +53,14 @@ export const NotificationProvider = ({ children }) => {
     } else {
       // User is logged out, reset notifications
       setNotifications({
-        home: false,
-        search: false,
-        profile: false,
-        settings: false,
+        explore: false,
+        listing: false,
+        account: false,
+        messages: false,
       });
     }
-  }, [currentUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser]); // Ensure 'notifications' is not a dependency to prevent infinite loop
 
   // Helper function to save notifications to Firestore
   const saveNotificationsToFirestore = async (updatedNotifications) => {
@@ -72,18 +79,22 @@ export const NotificationProvider = ({ children }) => {
   };
 
   // Add a notification
-  const addNotification = (key) => {
-    const updatedNotifications = { ...notifications, [key]: true };
-    setNotifications(updatedNotifications);
-    saveNotificationsToFirestore(updatedNotifications);
-  };
+  const addNotification = useCallback((key) => {
+    setNotifications((prevNotifications) => {
+      const updatedNotifications = { ...prevNotifications, [key]: true };
+      saveNotificationsToFirestore(updatedNotifications);
+      return updatedNotifications;
+    });
+  }, [currentUser]);
 
   // Clear a notification
-  const clearNotification = (key) => {
-    const updatedNotifications = { ...notifications, [key]: false };
-    setNotifications(updatedNotifications);
-    saveNotificationsToFirestore(updatedNotifications);
-  };
+  const clearNotification = useCallback((key) => {
+    setNotifications((prevNotifications) => {
+      const updatedNotifications = { ...prevNotifications, [key]: false };
+      saveNotificationsToFirestore(updatedNotifications);
+      return updatedNotifications;
+    });
+  }, [currentUser]);
 
   return (
     <NotificationContext.Provider
